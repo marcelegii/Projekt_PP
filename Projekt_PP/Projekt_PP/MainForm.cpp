@@ -10,6 +10,7 @@ void main(array<String^>^ args)
 	Application::EnableVisualStyles();
 	Application::SetCompatibleTextRenderingDefault(false);
 	Projekt_PP::MainForm form;
+	
 	Application::Run(%form);
 }
 
