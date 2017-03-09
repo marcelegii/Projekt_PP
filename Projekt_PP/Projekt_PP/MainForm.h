@@ -89,22 +89,22 @@ namespace Projekt_PP {
 			this->loadStateToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->cellParamsSettingToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->zoomToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
-			this->annotationToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
-			this->processToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
-			this->aboutToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->zoomInToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->zoomOutToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->overviewToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->annotationToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->polyToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->divideSectionToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->referenceToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->relativeX0ToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->relativeX100ToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->settingsToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->processToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->exitHMinsFindCellToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->sDACellFinderToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->negativeToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->optionWindowsToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->aboutToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->MenuStrip->SuspendLayout();
 			this->SuspendLayout();
 			// 
@@ -136,7 +136,6 @@ namespace Projekt_PP {
 			this->openToolStripMenuItem->Name = L"openToolStripMenuItem";
 			this->openToolStripMenuItem->Size = System::Drawing::Size(182, 22);
 			this->openToolStripMenuItem->Text = L"Open";
-			
 			// 
 			// saveAnnotaionToolStripMenuItem
 			// 
@@ -197,6 +196,24 @@ namespace Projekt_PP {
 			this->zoomToolStripMenuItem->Size = System::Drawing::Size(51, 20);
 			this->zoomToolStripMenuItem->Text = L"Zoom";
 			// 
+			// zoomInToolStripMenuItem
+			// 
+			this->zoomInToolStripMenuItem->Name = L"zoomInToolStripMenuItem";
+			this->zoomInToolStripMenuItem->Size = System::Drawing::Size(127, 22);
+			this->zoomInToolStripMenuItem->Text = L"Zoom in";
+			// 
+			// zoomOutToolStripMenuItem
+			// 
+			this->zoomOutToolStripMenuItem->Name = L"zoomOutToolStripMenuItem";
+			this->zoomOutToolStripMenuItem->Size = System::Drawing::Size(127, 22);
+			this->zoomOutToolStripMenuItem->Text = L"Zoom out";
+			// 
+			// overviewToolStripMenuItem
+			// 
+			this->overviewToolStripMenuItem->Name = L"overviewToolStripMenuItem";
+			this->overviewToolStripMenuItem->Size = System::Drawing::Size(127, 22);
+			this->overviewToolStripMenuItem->Text = L"Overview";
+			// 
 			// annotationToolStripMenuItem
 			// 
 			this->annotationToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(6) {
@@ -208,41 +225,6 @@ namespace Projekt_PP {
 			this->annotationToolStripMenuItem->Name = L"annotationToolStripMenuItem";
 			this->annotationToolStripMenuItem->Size = System::Drawing::Size(79, 20);
 			this->annotationToolStripMenuItem->Text = L"Annotation";
-			// 
-			// processToolStripMenuItem
-			// 
-			this->processToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(4) {
-				this->exitHMinsFindCellToolStripMenuItem,
-					this->sDACellFinderToolStripMenuItem, this->negativeToolStripMenuItem, this->optionWindowsToolStripMenuItem
-			});
-			this->processToolStripMenuItem->Enabled = false;
-			this->processToolStripMenuItem->Name = L"processToolStripMenuItem";
-			this->processToolStripMenuItem->Size = System::Drawing::Size(59, 20);
-			this->processToolStripMenuItem->Text = L"Process";
-			// 
-			// aboutToolStripMenuItem
-			// 
-			this->aboutToolStripMenuItem->Name = L"aboutToolStripMenuItem";
-			this->aboutToolStripMenuItem->Size = System::Drawing::Size(52, 20);
-			this->aboutToolStripMenuItem->Text = L"About";
-			// 
-			// zoomInToolStripMenuItem
-			// 
-			this->zoomInToolStripMenuItem->Name = L"zoomInToolStripMenuItem";
-			this->zoomInToolStripMenuItem->Size = System::Drawing::Size(152, 22);
-			this->zoomInToolStripMenuItem->Text = L"Zoom in";
-			// 
-			// zoomOutToolStripMenuItem
-			// 
-			this->zoomOutToolStripMenuItem->Name = L"zoomOutToolStripMenuItem";
-			this->zoomOutToolStripMenuItem->Size = System::Drawing::Size(152, 22);
-			this->zoomOutToolStripMenuItem->Text = L"Zoom out";
-			// 
-			// overviewToolStripMenuItem
-			// 
-			this->overviewToolStripMenuItem->Name = L"overviewToolStripMenuItem";
-			this->overviewToolStripMenuItem->Size = System::Drawing::Size(152, 22);
-			this->overviewToolStripMenuItem->Text = L"Overview";
 			// 
 			// polyToolStripMenuItem
 			// 
@@ -280,6 +262,17 @@ namespace Projekt_PP {
 			this->settingsToolStripMenuItem->Size = System::Drawing::Size(187, 22);
 			this->settingsToolStripMenuItem->Text = L"Settings";
 			// 
+			// processToolStripMenuItem
+			// 
+			this->processToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(4) {
+				this->exitHMinsFindCellToolStripMenuItem,
+					this->sDACellFinderToolStripMenuItem, this->negativeToolStripMenuItem, this->optionWindowsToolStripMenuItem
+			});
+			this->processToolStripMenuItem->Enabled = false;
+			this->processToolStripMenuItem->Name = L"processToolStripMenuItem";
+			this->processToolStripMenuItem->Size = System::Drawing::Size(59, 20);
+			this->processToolStripMenuItem->Text = L"Process";
+			// 
 			// exitHMinsFindCellToolStripMenuItem
 			// 
 			this->exitHMinsFindCellToolStripMenuItem->Name = L"exitHMinsFindCellToolStripMenuItem";
@@ -304,16 +297,24 @@ namespace Projekt_PP {
 			this->optionWindowsToolStripMenuItem->Size = System::Drawing::Size(184, 22);
 			this->optionWindowsToolStripMenuItem->Text = L"Option Windows";
 			// 
+			// aboutToolStripMenuItem
+			// 
+			this->aboutToolStripMenuItem->Name = L"aboutToolStripMenuItem";
+			this->aboutToolStripMenuItem->Size = System::Drawing::Size(52, 20);
+			this->aboutToolStripMenuItem->Text = L"About";
+			// 
 			// MainForm
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
 			this->ClientSize = System::Drawing::Size(448, 262);
 			this->Controls->Add(this->MenuStrip);
+			this->KeyPreview = true;
 			this->MainMenuStrip = this->MenuStrip;
 			this->Name = L"MainForm";
 			this->Text = L"CAS-Cell Annotation Software";
 			this->Load += gcnew System::EventHandler(this, &MainForm::MainForm_Load);
+			this->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &MainForm::MainForm_KeyDown);
 			this->MenuStrip->ResumeLayout(false);
 			this->MenuStrip->PerformLayout();
 			this->ResumeLayout(false);
@@ -324,5 +325,21 @@ namespace Projekt_PP {
 	private: System::Void MainForm_Load(System::Object^  sender, System::EventArgs^  e) {
 	}
 	
+private: System::Void MainForm_KeyDown(System::Object^  sender, System::Windows::Forms::KeyEventArgs^  e) {
+
+	if (e->Control)
+	{
+		if (e->KeyCode.ToString() == "O") MessageBox::Show("Open image test");
+
+		else if (e->KeyCode.ToString() == "S") MessageBox::Show("Save Annotation test");
+		else if (e->KeyCode.ToString() == "B") MessageBox::Show("Save State test");
+		else if (e->KeyCode.ToString() == "N") MessageBox::Show("Load State test");
+		else if (e->KeyCode.ToString() == "P") MessageBox::Show("Poly test");
+		else if (e->KeyCode.ToString() == "M") MessageBox::Show("Option window test");
+		
+		
+	
+	}
+}
 };
 }
