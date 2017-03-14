@@ -1,5 +1,5 @@
 #pragma once
-
+#include"optionsForm.h"
 namespace Projekt_PP {
 
 	using namespace System;
@@ -136,6 +136,7 @@ namespace Projekt_PP {
 			this->openToolStripMenuItem->Name = L"openToolStripMenuItem";
 			this->openToolStripMenuItem->Size = System::Drawing::Size(182, 22);
 			this->openToolStripMenuItem->Text = L"Open";
+			this->openToolStripMenuItem->Click += gcnew System::EventHandler(this, &MainForm::openToolStripMenuItem_Click);
 			// 
 			// saveAnnotaionToolStripMenuItem
 			// 
@@ -268,7 +269,6 @@ namespace Projekt_PP {
 				this->exitHMinsFindCellToolStripMenuItem,
 					this->sDACellFinderToolStripMenuItem, this->negativeToolStripMenuItem, this->optionWindowsToolStripMenuItem
 			});
-			this->processToolStripMenuItem->Enabled = false;
 			this->processToolStripMenuItem->Name = L"processToolStripMenuItem";
 			this->processToolStripMenuItem->Size = System::Drawing::Size(59, 20);
 			this->processToolStripMenuItem->Text = L"Process";
@@ -296,12 +296,14 @@ namespace Projekt_PP {
 			this->optionWindowsToolStripMenuItem->Name = L"optionWindowsToolStripMenuItem";
 			this->optionWindowsToolStripMenuItem->Size = System::Drawing::Size(184, 22);
 			this->optionWindowsToolStripMenuItem->Text = L"Option Windows";
+			this->optionWindowsToolStripMenuItem->Click += gcnew System::EventHandler(this, &MainForm::optionWindowsToolStripMenuItem_Click);
 			// 
 			// aboutToolStripMenuItem
 			// 
 			this->aboutToolStripMenuItem->Name = L"aboutToolStripMenuItem";
 			this->aboutToolStripMenuItem->Size = System::Drawing::Size(52, 20);
 			this->aboutToolStripMenuItem->Text = L"About";
+			this->aboutToolStripMenuItem->Click += gcnew System::EventHandler(this, &MainForm::aboutToolStripMenuItem_Click);
 			// 
 			// MainForm
 			// 
@@ -336,10 +338,42 @@ private: System::Void MainForm_KeyDown(System::Object^  sender, System::Windows:
 		else if (e->KeyCode.ToString() == "N") MessageBox::Show("Load State test");
 		else if (e->KeyCode.ToString() == "P") MessageBox::Show("Poly test");
 		else if (e->KeyCode.ToString() == "M") MessageBox::Show("Option window test");
+		else if ( (e->KeyCode==Keys::NumPad9 || e->KeyCode == Keys::D9) && this->zoomToolStripMenuItem->Enabled == true ) MessageBox::Show("Zoom out test");
+		else if ( (e->KeyCode==Keys::NumPad0 || e->KeyCode == Keys::D0) && this->zoomToolStripMenuItem->Enabled == true ) MessageBox::Show("Zoom in test");
+		
+
 		
 		
 	
 	}
 }
+//File
+private: System::Void openToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
+	
+	OpenFileDialog ^ openFileDialog1 = gcnew OpenFileDialog();
+	openFileDialog1->Filter = "Image Files|*.BMP;*.JPG;*.PNG|All files (*.*)|*.*";
+	openFileDialog1->Title = "Select a File";
+
+	
+	if (openFileDialog1->ShowDialog() == System::Windows::Forms::DialogResult::OK)
+	{
+		this->Cursor = gcnew
+			System::Windows::Forms::Cursor(
+				openFileDialog1->OpenFile());
+	}
+
+}
+ //About
+private: System::Void aboutToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
+	MessageBox::Show("CAS-- Cell Annotation Software\nAuthors:\n", "CAS_About");
+}
+
+// Show Option Window
+private: System::Void optionWindowsToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
+	optionsForm ^ frm2 = gcnew optionsForm(/*parametry--> opcje do ustawienia w form1?*/);
+	frm2->Show();
+	this->Hide();
+}
+
 };
 }
