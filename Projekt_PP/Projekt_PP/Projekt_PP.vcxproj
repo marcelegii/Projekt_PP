@@ -134,12 +134,16 @@
   <ItemGroup>
     <ClCompile Include="MainForm.cpp" />
     <ClCompile Include="optionsForm.cpp" />
+    <ClCompile Include="SettingsAnnotationForm.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MainForm.h">
       <FileType>CppForm</FileType>
     </ClInclude>
     <ClInclude Include="optionsForm.h">
+      <FileType>CppForm</FileType>
+    </ClInclude>
+    <ClInclude Include="SettingsAnnotationForm.h">
       <FileType>CppForm</FileType>
     </ClInclude>
   </ItemGroup>
@@ -149,6 +153,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="optionsForm.resx">
       <DependentUpon>optionsForm.h</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SettingsAnnotationForm.resx">
+      <DependentUpon>SettingsAnnotationForm.h</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

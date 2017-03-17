@@ -1,5 +1,7 @@
 #pragma once
-#include"optionsForm.h"
+#include"optionsForm.h";
+#include"SettingsAnnotationForm.h";
+
 namespace Projekt_PP {
 
 	using namespace System;
@@ -192,7 +194,7 @@ namespace Projekt_PP {
 				this->zoomInToolStripMenuItem,
 					this->zoomOutToolStripMenuItem, this->overviewToolStripMenuItem
 			});
-			this->zoomToolStripMenuItem->Enabled = false;
+			this->zoomToolStripMenuItem->Enabled = true;
 			this->zoomToolStripMenuItem->Name = L"zoomToolStripMenuItem";
 			this->zoomToolStripMenuItem->Size = System::Drawing::Size(51, 20);
 			this->zoomToolStripMenuItem->Text = L"Zoom";
@@ -222,7 +224,7 @@ namespace Projekt_PP {
 					this->divideSectionToolStripMenuItem, this->referenceToolStripMenuItem, this->relativeX0ToolStripMenuItem, this->relativeX100ToolStripMenuItem,
 					this->settingsToolStripMenuItem
 			});
-			this->annotationToolStripMenuItem->Enabled = false;
+			this->annotationToolStripMenuItem->Enabled = true;
 			this->annotationToolStripMenuItem->Name = L"annotationToolStripMenuItem";
 			this->annotationToolStripMenuItem->Size = System::Drawing::Size(79, 20);
 			this->annotationToolStripMenuItem->Text = L"Annotation";
@@ -262,6 +264,7 @@ namespace Projekt_PP {
 			this->settingsToolStripMenuItem->Name = L"settingsToolStripMenuItem";
 			this->settingsToolStripMenuItem->Size = System::Drawing::Size(187, 22);
 			this->settingsToolStripMenuItem->Text = L"Settings";
+			this->settingsToolStripMenuItem->Click += gcnew System::EventHandler(this, &MainForm::settingsToolStripMenuItem_Click);
 			// 
 			// processToolStripMenuItem
 			// 
@@ -279,7 +282,7 @@ namespace Projekt_PP {
 			this->exitHMinsFindCellToolStripMenuItem->Size = System::Drawing::Size(184, 22);
 			this->exitHMinsFindCellToolStripMenuItem->Text = L"Exit H-Mins Find Cell";
 			// 
-			// sDACellFinderToolStripMenuItem
+			// SDACellFinderToolStripMenuItem
 			// 
 			this->sDACellFinderToolStripMenuItem->Name = L"sDACellFinderToolStripMenuItem";
 			this->sDACellFinderToolStripMenuItem->Size = System::Drawing::Size(184, 22);
@@ -331,8 +334,10 @@ private: System::Void MainForm_KeyDown(System::Object^  sender, System::Windows:
 
 	if (e->Control)
 	{
+		//
+		//	shortcuts
+		//
 		if (e->KeyCode.ToString() == "O") MessageBox::Show("Open image test");
-
 		else if (e->KeyCode.ToString() == "S") MessageBox::Show("Save Annotation test");
 		else if (e->KeyCode.ToString() == "B") MessageBox::Show("Save State test");
 		else if (e->KeyCode.ToString() == "N") MessageBox::Show("Load State test");
@@ -365,15 +370,23 @@ private: System::Void openToolStripMenuItem_Click(System::Object^  sender, Syste
 }
  //About
 private: System::Void aboutToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
-	MessageBox::Show("CAS-- Cell Annotation Software\nAuthors:\n", "CAS_About");
+	MessageBox::Show("CAS--Cell Annotation Software\nAuthors:\n", "CAS_About");
 }
 
 // Show Option Window
 private: System::Void optionWindowsToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
-	optionsForm ^ frm2 = gcnew optionsForm(/*parametry--> opcje do ustawienia w form1?*/);
-	frm2->Show();
-	this->Hide();
+	// formularze chyba pownny byc jako zmienne klasy
+	optionsForm ^ optionForm = gcnew optionsForm(/*parametry--> opcje do ustawienia w form1?*/);
+	optionForm->Show();
+	//this->Hide();
 }
+//Settings Annotation --> new form
+private: System::Void settingsToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
+	// formularze chyba pownny byc jako zmienne klasy
+	SettingsAnnotationForm ^ settingsAnnotationForm = gcnew SettingsAnnotationForm(/*parametry--> opcje do ustawienia w form1?*/);
+	settingsAnnotationForm->Show();
+	//this->Hide();
 
+}
 };
 }

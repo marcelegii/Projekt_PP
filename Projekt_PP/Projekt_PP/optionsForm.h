@@ -111,10 +111,10 @@ namespace Projekt_PP {
 			this->butApplySize = (gcnew System::Windows::Forms::Button());
 			this->panel1 = (gcnew System::Windows::Forms::Panel());
 			this->panel2 = (gcnew System::Windows::Forms::Panel());
+			this->panel6 = (gcnew System::Windows::Forms::Panel());
+			this->panel5 = (gcnew System::Windows::Forms::Panel());
 			this->panel3 = (gcnew System::Windows::Forms::Panel());
 			this->panel4 = (gcnew System::Windows::Forms::Panel());
-			this->panel5 = (gcnew System::Windows::Forms::Panel());
-			this->panel6 = (gcnew System::Windows::Forms::Panel());
 			this->panel7 = (gcnew System::Windows::Forms::Panel());
 			this->panel8 = (gcnew System::Windows::Forms::Panel());
 			this->panel1->SuspendLayout();
@@ -135,7 +135,7 @@ namespace Projekt_PP {
 			// 
 			this->label1->AutoSize = true;
 			this->label1->BorderStyle = System::Windows::Forms::BorderStyle::Fixed3D;
-			this->label1->Location = System::Drawing::Point(16, -1);
+			this->label1->Location = System::Drawing::Point(18, 0);
 			this->label1->Name = L"label1";
 			this->label1->Size = System::Drawing::Size(63, 15);
 			this->label1->TabIndex = 1;
@@ -216,9 +216,9 @@ namespace Projekt_PP {
 			this->label4->AutoSize = true;
 			this->label4->Location = System::Drawing::Point(6, 6);
 			this->label4->Name = L"label4";
-			this->label4->Size = System::Drawing::Size(73, 13);
+			this->label4->Size = System::Drawing::Size(70, 13);
 			this->label4->TabIndex = 10;
-			this->label4->Text = L"SDA_Settings";
+			this->label4->Text = L"SDA Settings";
 			// 
 			// textBox3
 			// 
@@ -381,6 +381,22 @@ namespace Projekt_PP {
 			this->panel2->Size = System::Drawing::Size(113, 76);
 			this->panel2->TabIndex = 27;
 			// 
+			// panel6
+			// 
+			this->panel6->BorderStyle = System::Windows::Forms::BorderStyle::Fixed3D;
+			this->panel6->Location = System::Drawing::Point(-4, 73);
+			this->panel6->Name = L"panel6";
+			this->panel6->Size = System::Drawing::Size(268, 94);
+			this->panel6->TabIndex = 5;
+			// 
+			// panel5
+			// 
+			this->panel5->BorderStyle = System::Windows::Forms::BorderStyle::Fixed3D;
+			this->panel5->Location = System::Drawing::Point(-4, 72);
+			this->panel5->Name = L"panel5";
+			this->panel5->Size = System::Drawing::Size(269, 96);
+			this->panel5->TabIndex = 4;
+			// 
 			// panel3
 			// 
 			this->panel3->BorderStyle = System::Windows::Forms::BorderStyle::Fixed3D;
@@ -399,22 +415,6 @@ namespace Projekt_PP {
 			this->panel4->Name = L"panel4";
 			this->panel4->Size = System::Drawing::Size(166, 76);
 			this->panel4->TabIndex = 28;
-			// 
-			// panel5
-			// 
-			this->panel5->BorderStyle = System::Windows::Forms::BorderStyle::Fixed3D;
-			this->panel5->Location = System::Drawing::Point(-4, 72);
-			this->panel5->Name = L"panel5";
-			this->panel5->Size = System::Drawing::Size(269, 96);
-			this->panel5->TabIndex = 4;
-			// 
-			// panel6
-			// 
-			this->panel6->BorderStyle = System::Windows::Forms::BorderStyle::Fixed3D;
-			this->panel6->Location = System::Drawing::Point(-4, 73);
-			this->panel6->Name = L"panel6";
-			this->panel6->Size = System::Drawing::Size(268, 94);
-			this->panel6->TabIndex = 5;
 			// 
 			// panel7
 			// 
@@ -450,6 +450,8 @@ namespace Projekt_PP {
 			this->Controls->Add(this->panel2);
 			this->Controls->Add(this->panel7);
 			this->Controls->Add(this->panel1);
+			this->FormBorderStyle = System::Windows::Forms::FormBorderStyle::FixedSingle;
+			this->MaximizeBox = false;
 			this->Name = L"optionsForm";
 			this->Text = L"optionsForm";
 			this->Load += gcnew System::EventHandler(this, &optionsForm::optionsForm_Load);
@@ -468,7 +470,7 @@ namespace Projekt_PP {
 		}
 #pragma endregion
 	private: System::Void optionsForm_Load(System::Object^  sender, System::EventArgs^  e) {
-		
+ 		
 	}
 	
 	private: System::Void chBoxNegative_CheckedChanged(System::Object^  sender, System::EventArgs^  e) {
