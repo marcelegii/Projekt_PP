@@ -1,11 +1,11 @@
 #include "MainForm.h"
 
-using namespace std;
+//using namespace std;
 using namespace System;
 using namespace System::Windows::Forms;
 
 [STAThread]
-void main(array<String^>^ args)
+void main(cli::array<System::String^>^ args)
 {
 	
 	Application::EnableVisualStyles();
