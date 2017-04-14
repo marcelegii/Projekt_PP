@@ -2,6 +2,12 @@
 #include"optionsForm.h";
 #include"SettingsAnnotationForm.h";
 
+#include <msclr\marshal_cppstd.h>
+#include <opencv2\core.hpp>
+#include <opencv2\imgcodecs.hpp>
+#include <opencv2\highgui.hpp>
+#include <opencv2\opencv.hpp>
+
 namespace Projekt_PP {
 
 	using namespace System;
@@ -26,6 +32,9 @@ namespace Projekt_PP {
 		}
 
 	protected:
+		IplImage *cvImage;
+		Bitmap ^image;
+
 		/// <summary>
 		/// Clean up any resources being used.
 		/// </summary>
@@ -65,6 +74,7 @@ namespace Projekt_PP {
 	private: System::Windows::Forms::ToolStripMenuItem^  sDACellFinderToolStripMenuItem;
 	private: System::Windows::Forms::ToolStripMenuItem^  negativeToolStripMenuItem;
 	private: System::Windows::Forms::ToolStripMenuItem^  optionWindowsToolStripMenuItem;
+	private: System::Windows::Forms::PictureBox^  pictureBox1;
 
 	private:
 		/// <summary>
@@ -107,7 +117,9 @@ namespace Projekt_PP {
 			this->negativeToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->optionWindowsToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->aboutToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->pictureBox1 = (gcnew System::Windows::Forms::PictureBox());
 			this->MenuStrip->SuspendLayout();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBox1))->BeginInit();
 			this->SuspendLayout();
 			// 
 			// MenuStrip
@@ -151,6 +163,7 @@ namespace Projekt_PP {
 			this->saveImageToolStripMenuItem->Name = L"saveImageToolStripMenuItem";
 			this->saveImageToolStripMenuItem->Size = System::Drawing::Size(182, 22);
 			this->saveImageToolStripMenuItem->Text = L"Save Image";
+			this->saveImageToolStripMenuItem->Click += gcnew System::EventHandler(this, &MainForm::saveImageToolStripMenuItem_Click);
 			// 
 			// saveDistributionToolStripMenuItem
 			// 
@@ -194,7 +207,6 @@ namespace Projekt_PP {
 				this->zoomInToolStripMenuItem,
 					this->zoomOutToolStripMenuItem, this->overviewToolStripMenuItem
 			});
-			this->zoomToolStripMenuItem->Enabled = true;
 			this->zoomToolStripMenuItem->Name = L"zoomToolStripMenuItem";
 			this->zoomToolStripMenuItem->Size = System::Drawing::Size(51, 20);
 			this->zoomToolStripMenuItem->Text = L"Zoom";
@@ -224,7 +236,6 @@ namespace Projekt_PP {
 					this->divideSectionToolStripMenuItem, this->referenceToolStripMenuItem, this->relativeX0ToolStripMenuItem, this->relativeX100ToolStripMenuItem,
 					this->settingsToolStripMenuItem
 			});
-			this->annotationToolStripMenuItem->Enabled = true;
 			this->annotationToolStripMenuItem->Name = L"annotationToolStripMenuItem";
 			this->annotationToolStripMenuItem->Size = System::Drawing::Size(79, 20);
 			this->annotationToolStripMenuItem->Text = L"Annotation";
@@ -282,7 +293,7 @@ namespace Projekt_PP {
 			this->exitHMinsFindCellToolStripMenuItem->Size = System::Drawing::Size(184, 22);
 			this->exitHMinsFindCellToolStripMenuItem->Text = L"Exit H-Mins Find Cell";
 			// 
-			// SDACellFinderToolStripMenuItem
+			// sDACellFinderToolStripMenuItem
 			// 
 			this->sDACellFinderToolStripMenuItem->Name = L"sDACellFinderToolStripMenuItem";
 			this->sDACellFinderToolStripMenuItem->Size = System::Drawing::Size(184, 22);
@@ -308,11 +319,20 @@ namespace Projekt_PP {
 			this->aboutToolStripMenuItem->Text = L"About";
 			this->aboutToolStripMenuItem->Click += gcnew System::EventHandler(this, &MainForm::aboutToolStripMenuItem_Click);
 			// 
+			// pictureBox1
+			// 
+			this->pictureBox1->Location = System::Drawing::Point(0, 27);
+			this->pictureBox1->Name = L"pictureBox1";
+			this->pictureBox1->Size = System::Drawing::Size(339, 235);
+			this->pictureBox1->TabIndex = 1;
+			this->pictureBox1->TabStop = false;
+			// 
 			// MainForm
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
 			this->ClientSize = System::Drawing::Size(448, 262);
+			this->Controls->Add(this->pictureBox1);
 			this->Controls->Add(this->MenuStrip);
 			this->KeyPreview = true;
 			this->MainMenuStrip = this->MenuStrip;
@@ -322,6 +342,7 @@ namespace Projekt_PP {
 			this->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &MainForm::MainForm_KeyDown);
 			this->MenuStrip->ResumeLayout(false);
 			this->MenuStrip->PerformLayout();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBox1))->EndInit();
 			this->ResumeLayout(false);
 			this->PerformLayout();
 
@@ -362,12 +383,62 @@ private: System::Void openToolStripMenuItem_Click(System::Object^  sender, Syste
 	
 	if (openFileDialog1->ShowDialog() == System::Windows::Forms::DialogResult::OK)
 	{
-		this->Cursor = gcnew
-			System::Windows::Forms::Cursor(
-				openFileDialog1->OpenFile());
-	}
+		bool loaded = false;
+		cv::Mat temp;
 
+		this->Cursor;
+
+		try {
+			// Microsoft provided code : System::String to basic string
+			std::string filePath = msclr::interop::marshal_as<std::string>(openFileDialog1->FileName);
+			
+			cvImage = cvLoadImage(filePath.c_str(), cv::IMREAD_COLOR);
+			loaded = true;
+		}
+		catch (cv::Exception &ex) {
+			loaded = false;
+		}
+
+		if (!loaded) {
+			MessageBox::Show("cvLoadImage error !");
+			return;
+		}
+		else {
+			image = gcnew Bitmap(cvImage->width, cvImage->height, cvImage->widthStep, Imaging::PixelFormat::Format24bppRgb, IntPtr(cvImage->imageData));
+			pictureBox1->Width = image->Width;
+			pictureBox1->Height = image->Height;
+			pictureBox1->Image = image;
+			this->AutoSize = false;
+		}
+		/*	DON'T FORGET ABOUT MEMORY DISALLOCATION !!!
+		if (cvImage != NULL) {
+			pin_ptr<IplImage*> p = &cvImage;
+			cvReleaseImage(p);
+		}
+		*/
+	}
 }
+
+	// Save Image button
+private: System::Void saveImageToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
+	SaveFileDialog ^ saveFileDialog1 = gcnew SaveFileDialog();
+	saveFileDialog1->Filter = "JPEG Image|*.jpg|Bitmap Image|*.bmp|PNG Image|*.png|Tiff Image|*.tiff";
+	saveFileDialog1->Title = "Select Filename";
+
+	if (saveFileDialog1->ShowDialog() == System::Windows::Forms::DialogResult::OK)
+	{
+		std::string filePath = msclr::interop::marshal_as<std::string>(saveFileDialog1->FileName);
+
+		if (cvImage != NULL) {
+			cvSaveImage(filePath.c_str(), cvImage);
+		}
+		else {
+			MessageBox::Show("Nie wczyta³eœ obrazu!");
+		}
+
+	}
+}
+
  //About
 private: System::Void aboutToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
 	MessageBox::Show("CAS--Cell Annotation Software\nAuthors:\n", "CAS_About");
