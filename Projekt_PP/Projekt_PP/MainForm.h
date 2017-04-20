@@ -1,12 +1,14 @@
 #pragma once
 #include"optionsForm.h";
 #include"SettingsAnnotationForm.h";
-
 #include <msclr\marshal_cppstd.h>
 #include <opencv2\core.hpp>
 #include <opencv2\imgcodecs.hpp>
 #include <opencv2\highgui.hpp>
 #include <opencv2\opencv.hpp>
+//#include "MouseEvent.h"
+#include <Windows.h>
+#include <iostream>
 
 namespace Projekt_PP {
 
@@ -245,6 +247,7 @@ namespace Projekt_PP {
 			this->polyToolStripMenuItem->Name = L"polyToolStripMenuItem";
 			this->polyToolStripMenuItem->Size = System::Drawing::Size(187, 22);
 			this->polyToolStripMenuItem->Text = L"Poly";
+			this->polyToolStripMenuItem->Click += gcnew System::EventHandler(this, &MainForm::polyToolStripMenuItem_Click);
 			// 
 			// divideSectionToolStripMenuItem
 			// 
@@ -350,114 +353,123 @@ namespace Projekt_PP {
 #pragma endregion
 	private: System::Void MainForm_Load(System::Object^  sender, System::EventArgs^  e) {
 	}
-	
-private: System::Void MainForm_KeyDown(System::Object^  sender, System::Windows::Forms::KeyEventArgs^  e) {
 
-	if (e->Control)
-	{
-		//
-		//	shortcuts
-		//
-		if (e->KeyCode.ToString() == "O") MessageBox::Show("Open image test");
-		else if (e->KeyCode.ToString() == "S") MessageBox::Show("Save Annotation test");
-		else if (e->KeyCode.ToString() == "B") MessageBox::Show("Save State test");
-		else if (e->KeyCode.ToString() == "N") MessageBox::Show("Load State test");
-		else if (e->KeyCode.ToString() == "P") MessageBox::Show("Poly test");
-		else if (e->KeyCode.ToString() == "M") MessageBox::Show("Option window test");
-		else if ( (e->KeyCode==Keys::NumPad9 || e->KeyCode == Keys::D9) && this->zoomToolStripMenuItem->Enabled == true ) MessageBox::Show("Zoom out test");
-		else if ( (e->KeyCode==Keys::NumPad0 || e->KeyCode == Keys::D0) && this->zoomToolStripMenuItem->Enabled == true ) MessageBox::Show("Zoom in test");
-		
+	private: System::Void MainForm_KeyDown(System::Object^  sender, System::Windows::Forms::KeyEventArgs^  e) {
 
-		
-		
-	
+		if (e->Control)
+		{
+			//
+			//	shortcuts
+			//
+			if (e->KeyCode.ToString() == "O") MessageBox::Show("Open image test");
+			else if (e->KeyCode.ToString() == "S") MessageBox::Show("Save Annotation test");
+			else if (e->KeyCode.ToString() == "B") MessageBox::Show("Save State test");
+			else if (e->KeyCode.ToString() == "N") MessageBox::Show("Load State test");
+			else if (e->KeyCode.ToString() == "P") MessageBox::Show("Poly test");
+			else if (e->KeyCode.ToString() == "M") MessageBox::Show("Option window test");
+			else if ((e->KeyCode == Keys::NumPad9 || e->KeyCode == Keys::D9) && this->zoomToolStripMenuItem->Enabled == true) MessageBox::Show("Zoom out test");
+			else if ((e->KeyCode == Keys::NumPad0 || e->KeyCode == Keys::D0) && this->zoomToolStripMenuItem->Enabled == true) MessageBox::Show("Zoom in test");
+
+
+
+
+
+		}
 	}
-}
-//File
-private: System::Void openToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
-	
-	OpenFileDialog ^ openFileDialog1 = gcnew OpenFileDialog();
-	openFileDialog1->Filter = "Image Files|*.BMP;*.JPG;*.PNG|All files (*.*)|*.*";
-	openFileDialog1->Title = "Select a File";
+			 //File
+	private: System::Void openToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
 
-	
-	if (openFileDialog1->ShowDialog() == System::Windows::Forms::DialogResult::OK)
-	{
-		bool loaded = false;
-		cv::Mat temp;
+		OpenFileDialog ^ openFileDialog1 = gcnew OpenFileDialog();
+		openFileDialog1->Filter = "Image Files|*.BMP;*.JPG;*.PNG|All files (*.*)|*.*";
+		openFileDialog1->Title = "Select a File";
 
-		this->Cursor;
 
-		try {
-			// Microsoft provided code : System::String to basic string
-			std::string filePath = msclr::interop::marshal_as<std::string>(openFileDialog1->FileName);
-			
-			cvImage = cvLoadImage(filePath.c_str(), cv::IMREAD_COLOR);
-			loaded = true;
-		}
-		catch (cv::Exception &ex) {
-			loaded = false;
-		}
+		if (openFileDialog1->ShowDialog() == System::Windows::Forms::DialogResult::OK)
+		{
+			bool loaded = false;
+			cv::Mat temp;
 
-		if (!loaded) {
-			MessageBox::Show("cvLoadImage error !");
-			return;
-		}
-		else {
-			image = gcnew Bitmap(cvImage->width, cvImage->height, cvImage->widthStep, Imaging::PixelFormat::Format24bppRgb, IntPtr(cvImage->imageData));
-			pictureBox1->Width = image->Width;
-			pictureBox1->Height = image->Height;
-			pictureBox1->Image = image;
-			this->AutoSize = false;
-		}
-		/*	DON'T FORGET ABOUT MEMORY DISALLOCATION !!!
-		if (cvImage != NULL) {
+			this->Cursor;
+
+			try {
+				// Microsoft provided code : System::String to basic string
+				std::string filePath = msclr::interop::marshal_as<std::string>(openFileDialog1->FileName);
+
+				cvImage = cvLoadImage(filePath.c_str(), cv::IMREAD_COLOR);
+				loaded = true;
+			}
+			catch (cv::Exception &ex) {
+				loaded = false;
+			}
+
+			if (!loaded) {
+				MessageBox::Show("cvLoadImage error !");
+				return;
+			}
+			else {
+				image = gcnew Bitmap(cvImage->width, cvImage->height, cvImage->widthStep, Imaging::PixelFormat::Format24bppRgb, IntPtr(cvImage->imageData));
+				pictureBox1->Width = image->Width;
+				pictureBox1->Height = image->Height;
+				pictureBox1->Image = image;
+				this->AutoSize = false;
+			}
+			/*	DON'T FORGET ABOUT MEMORY DISALLOCATION !!!
+			if (cvImage != NULL) {
 			pin_ptr<IplImage*> p = &cvImage;
 			cvReleaseImage(p);
+			}
+			*/
 		}
-		*/
 	}
-}
 
-	// Save Image button
-private: System::Void saveImageToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
-	SaveFileDialog ^ saveFileDialog1 = gcnew SaveFileDialog();
-	saveFileDialog1->Filter = "JPEG Image|*.jpg|Bitmap Image|*.bmp|PNG Image|*.png|Tiff Image|*.tiff";
-	saveFileDialog1->Title = "Select Filename";
+			 // Save Image button
+	private: System::Void saveImageToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
+		SaveFileDialog ^ saveFileDialog1 = gcnew SaveFileDialog();
+		saveFileDialog1->Filter = "JPEG Image|*.jpg|Bitmap Image|*.bmp|PNG Image|*.png|Tiff Image|*.tiff";
+		saveFileDialog1->Title = "Select Filename";
 
-	if (saveFileDialog1->ShowDialog() == System::Windows::Forms::DialogResult::OK)
-	{
-		std::string filePath = msclr::interop::marshal_as<std::string>(saveFileDialog1->FileName);
+		if (saveFileDialog1->ShowDialog() == System::Windows::Forms::DialogResult::OK)
+		{
+			std::string filePath = msclr::interop::marshal_as<std::string>(saveFileDialog1->FileName);
 
-		if (cvImage != NULL) {
-			cvSaveImage(filePath.c_str(), cvImage);
+			if (cvImage != NULL) {
+				cvSaveImage(filePath.c_str(), cvImage);
+			}
+			else {
+				MessageBox::Show("Nie wczyta³eœ obrazu!");
+			}
+
 		}
-		else {
-			MessageBox::Show("Nie wczyta³eœ obrazu!");
-		}
+	}
+
+	private: System::Void polyToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
+		POINT cursorPosition;
+		GetCursorPos(&cursorPosition);
+		std::cout << cursorPosition.x << " " << cursorPosition.y << std::endl;
+
+
 
 	}
-}
 
- //About
-private: System::Void aboutToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
-	MessageBox::Show("CAS--Cell Annotation Software\nAuthors:\n", "CAS_About");
-}
+			 //About
+	private: System::Void aboutToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
+		MessageBox::Show("CAS--Cell Annotation Software\nAuthors:\n", "CAS_About");
+	}
 
-// Show Option Window
-private: System::Void optionWindowsToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
-	// formularze chyba pownny byc jako zmienne klasy
-	optionsForm ^ optionForm = gcnew optionsForm(/*parametry--> opcje do ustawienia w form1?*/);
-	optionForm->Show();
-	//this->Hide();
-}
-//Settings Annotation --> new form
-private: System::Void settingsToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
-	// formularze chyba pownny byc jako zmienne klasy
-	SettingsAnnotationForm ^ settingsAnnotationForm = gcnew SettingsAnnotationForm(/*parametry--> opcje do ustawienia w form1?*/);
-	settingsAnnotationForm->Show();
-	//this->Hide();
+			 // Show Option Window
+	private: System::Void optionWindowsToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
+		// formularze chyba pownny byc jako zmienne klasy
+		optionsForm ^ optionForm = gcnew optionsForm(/*parametry--> opcje do ustawienia w form1?*/);
+		optionForm->Show();
+		//this->Hide();
+	}
+			 //Settings Annotation --> new form
+	private: System::Void settingsToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
+		// formularze chyba pownny byc jako zmienne klasy
+		SettingsAnnotationForm ^ settingsAnnotationForm = gcnew SettingsAnnotationForm(/*parametry--> opcje do ustawienia w form1?*/);
+		settingsAnnotationForm->Show();
+		//this->Hide();
 
-}
-};
+	}
+	};
 }
