@@ -9,6 +9,7 @@
 //#include "MouseEvent.h"
 #include <Windows.h>
 #include <iostream>
+#include<string>
 
 namespace Projekt_PP {
 
@@ -324,11 +325,14 @@ namespace Projekt_PP {
 			// 
 			// pictureBox1
 			// 
+			this->pictureBox1->AllowDrop = true;
 			this->pictureBox1->Location = System::Drawing::Point(0, 27);
 			this->pictureBox1->Name = L"pictureBox1";
 			this->pictureBox1->Size = System::Drawing::Size(339, 235);
 			this->pictureBox1->TabIndex = 1;
 			this->pictureBox1->TabStop = false;
+			this->pictureBox1->DragDrop += gcnew System::Windows::Forms::DragEventHandler(this, &MainForm::pictureBox1_DragDrop);
+			this->pictureBox1->DragEnter += gcnew System::Windows::Forms::DragEventHandler(this, &MainForm::pictureBox1_DragEnter);
 			// 
 			// MainForm
 			// 
@@ -471,5 +475,36 @@ namespace Projekt_PP {
 		//this->Hide();
 
 	}
-	};
+	private: System::Void pictureBox1_DragEnter(System::Object^  sender, System::Windows::Forms::DragEventArgs^  e) {
+		if (e->Data->GetDataPresent(DataFormats::FileDrop, false) == true) {
+			e->Effect = DragDropEffects::All;
+		}
+	}
+
+
+	private: System::Void pictureBox1_DragDrop(System::Object^  sender, System::Windows::Forms::DragEventArgs^  e) {
+
+		array<String^>^ paths = safe_cast<array<String^>^>(e->Data->GetData(DataFormats::FileDrop));
+		for each (String^ path in paths) {
+			std::string fileName = msclr::interop::marshal_as<std::string>(System::IO::Path::GetFileNameWithoutExtension(path)->ToLower());
+			std::string _path= msclr::interop::marshal_as<std::string>(path->ToLower());
+			try {
+				cvImage = cvLoadImage(_path.c_str(), cv::IMREAD_COLOR);
+			}
+			catch (cv::Exception e) {
+				MessageBox::Show("cvLoadImage error !");
+				return;
+			}
+			image = gcnew Bitmap(cvImage->width, cvImage->height, cvImage->widthStep, Imaging::PixelFormat::Format24bppRgb, IntPtr(cvImage->imageData));
+			pictureBox1->Width = image->Width;
+			pictureBox1->Height = image->Height;
+			pictureBox1->Image = image;
+			this->AutoSize = false;
+
+		}
+	}
+
+			 
+	
+};
 }
