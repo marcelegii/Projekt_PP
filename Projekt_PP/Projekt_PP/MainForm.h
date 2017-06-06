@@ -9,7 +9,210 @@
 //#include "MouseEvent.h"
 #include <Windows.h>
 #include <iostream>
-#include<string>
+#include <string>
+#include "matConvert.h"
+
+int tab[200][2], count = 0;
+int tabmemory[200][2];
+cv::Mat img;
+bool end = false;
+
+/*
+	INFO DLA DAMIANA
+	Nie wiem jak to wywo³aæ, zrób tak, ¿eby Twoja funkcja zmieniaj¹ca sprawdza³a czy obraz zosta³ wczytany. 
+	Po wczytaniu jest automatycznie konwertowany i ³adowany do tego globalnego cv::Mat img.
+
+
+*/
+static void przepisz() {
+	int ile = 0;
+	if (tabmemory[ile][0] != 0) {
+		do {
+			ile++;
+		} while (tabmemory[ile][0] != 0 && tabmemory[ile + 1][0] != 0);
+		ile++;
+	}
+
+
+	for (int i = 0; i <= count; i++) {
+		//std::cout << i;
+		//std::cout << ile;
+		tabmemory[ile][0] = tab[i][0];
+		tabmemory[ile][1] = tab[i][1];
+		//std::cout << "x: " << tabmemory[ile][0] << "  y: " << tabmemory[ile][1] << std::endl;
+		ile++;
+
+
+	}
+	count = -1;
+}
+static void onMouse(int event, int x, int y, int, void*) {
+
+	switch (event)
+	{
+	case CV_EVENT_LBUTTONDOWN:
+		//std::cout << " here";
+		tab[count][0] = x;
+		tab[count][1] = y;
+		if (count == 0) {
+			circle(img, cv::Point(tab[count][0], tab[count][1]), 3.0, cv::Scalar(255, 0, 0), -1, 8);
+		}
+
+		if (count > 0) {
+			if ((abs(tab[0][0] - x) < 8) && (abs(tab[0][1] - y) < 8)) {
+				cv::line(img, cv::Point(tab[count - 1][0], tab[count - 1][1]), cv::Point(tab[0][0], tab[0][1]), cv::Scalar(255, 0, 0), 1, 8);
+				tab[count][0] = tab[0][0];
+				tab[count][1] = tab[0][1];
+				imshow("splash", img);
+				przepisz();
+
+			}
+			else {
+				circle(img, cv::Point(tab[count][0], tab[count][1]), 3.0, cv::Scalar(255, 0, 0), -1, 8);
+				cv::line(img, cv::Point(tab[count - 1][0], tab[count - 1][1]), cv::Point(tab[count][0], tab[count][1]), cv::Scalar(255, 0, 0), 1, 8);
+				imshow("splash", img);
+			}
+		}
+		//std::cout << count;
+		count++;
+		break;
+	}
+}
+
+static int calculateCountAngle() {
+	int i = 0;
+	do {
+		i++;
+	} while (tab[0][0] != tab[i][0] && tab[0][1] != tab[i][1]);
+	return i;
+}
+static int calculatePoint(int x1, int y1, int x2, int y2, int x) {
+	float a = (float)(y1 - y2) / (float)(x1 - x2);
+	float b = (float)y1 - (float)a*x1;
+	return (a * x + b);
+}
+
+static void DivideSectionCalculate() {
+	int points = 20, j = 20;
+	int countAngle = calculateCountAngle();
+	POINT tabPointUp[50], tabPointDown[50];
+	float point = 0;
+	float x = 0, y1 = 0, sum = 0, y2 = 0, high = 0;
+	int left = tab[0][0];
+	int right = tab[0][0];
+	for (int i = 1; i < countAngle; i++) {
+		if (left > tab[i][0]) {
+			left = tab[i][0];
+		}
+		else if (right < tab[i][0])
+		{
+			right = tab[i][0];
+		}
+	}
+
+	sum = (right - left) / points;
+	x = left + sum;
+	//ktory jest najbardziej w lewo
+	int up = 0, down = 0;
+	while (left != tab[up][0]) {
+		up++;
+		down++;
+	}
+	do {
+		if (down == 0) {
+			y1 = calculatePoint(tab[up][0], tab[up][1], tab[up + 1][0], tab[up + 1][1], x);
+			y2 = calculatePoint(tab[down][0], tab[down][1], tab[countAngle - 1][0], tab[countAngle - 1][1], x);
+		}
+		else if (up == 3) {
+			y1 = calculatePoint(tab[up][0], tab[up][1], tab[0][0], tab[0][1], x);
+			y2 = calculatePoint(tab[down][0], tab[down][1], tab[down - 1][0], tab[down - 1][1], x);
+		}
+		else {
+			y1 = calculatePoint(tab[up][0], tab[up][1], tab[up + 1][0], tab[up + 1][1], x);
+			y2 = calculatePoint(tab[down][0], tab[down][1], tab[down - 1][0], tab[down - 1][1], x);
+		}
+
+		high = y1 - y2;
+
+		circle(img, cv::Point(x, (2 * high / 3) + y2), 3.0, cv::Scalar(0, 255, 0), -1, 8);
+		circle(img, cv::Point(x, (high / 3) + y2), 3.0, cv::Scalar(0, 255, 255), -1, 8);
+		tabPointUp[points].x = x;
+		tabPointUp[points].y = (2 * high / 3) + y2;
+		tabPointDown[points].x = x;
+		tabPointDown[points].y = high / 3 + y2;
+
+
+		x = x + sum;
+		if (down == 0) {
+			if (x > tab[countAngle - 1][0]) {
+				down--;
+				if (down == -1) {
+					down = countAngle - 1;
+				}
+			}
+		}
+		else if (x > tab[down - 1][0]) {
+			down--;
+			if (down == -1) {
+				down = countAngle - 1;
+			}
+		}
+
+		if (x > tab[up + 1][0]) {
+			up++;
+			if (up == countAngle) {
+				up = 0;
+			}
+		}
+		points--;
+	} while (points > 0);
+
+
+	for (j; j != 1; j--) {
+		cv::line(img, cv::Point(tabPointUp[j].x, tabPointUp[j].y), cv::Point(tabPointUp[j - 1].x, tabPointUp[j - 1].y), cv::Scalar(0, 255, 0), 1, 8);
+		cv::line(img, cv::Point(tabPointDown[j].x, tabPointDown[j].y), cv::Point(tabPointDown[j - 1].x, tabPointDown[j - 1].y), cv::Scalar(0, 255, 255), 1, 8);
+	}
+	imshow("splash", img);
+}
+
+static int madeTab(int i) {
+	std::cout << i;
+	int j = i;
+	int k = 0;
+	do {
+		tab[k][0] = tabmemory[i][0];
+		tab[k][1] = tabmemory[i][1];
+		//std::cout << "x: " << tab[k][0] << "  y: " << tab[k][1] ;
+		//std::cout << "     x: " << tabmemory[i][0] << "  y: " << tabmemory[i][1] << std::endl;
+		i++;
+		k++;
+	} while (tabmemory[j][0] != tabmemory[i][0] && tabmemory[j][1] != tabmemory[i][1]);
+	tab[k][0] = tabmemory[i][0];
+	tab[k][1] = tabmemory[i][1];
+	//for (int i = 0; i < 7; i++) {
+	//	std::cout << "x: " << tab[i][0] << "  y: " << tab[i][1] << std::endl;
+	//}
+	return i;
+}
+
+static void DivideSection() {
+	//for (int i = 0; i < 30; i++) {
+	//	std::cout << "x: " << tabmemory[i][0] << "  y: " << tabmemory[i][1] << std::endl;
+	//}
+
+	int i = 0;
+	do {
+		i = madeTab(i);
+		DivideSectionCalculate();
+		//std::cout << " here";
+		i++;
+	} while (tabmemory[i][0] != 0 && tabmemory[i + 1][0] != 0);
+
+}
+
+
+// ODT¥D LEC¥ STARE RZECZY
+
 
 namespace Projekt_PP {
 
@@ -387,11 +590,9 @@ namespace Projekt_PP {
 		openFileDialog1->Filter = "Image Files|*.BMP;*.JPG;*.PNG|All files (*.*)|*.*";
 		openFileDialog1->Title = "Select a File";
 
-
 		if (openFileDialog1->ShowDialog() == System::Windows::Forms::DialogResult::OK)
 		{
 			bool loaded = false;
-			cv::Mat temp;
 
 			this->Cursor;
 
@@ -399,8 +600,15 @@ namespace Projekt_PP {
 				// Microsoft provided code : System::String to basic string
 				std::string filePath = msclr::interop::marshal_as<std::string>(openFileDialog1->FileName);
 
-				cvImage = cvLoadImage(filePath.c_str(), cv::IMREAD_COLOR);
+				//temp = cv::imread(filePath.c_str());
+			
+
+
+				//Test 2
+				cvImage = cvLoadImage(filePath.c_str(), cv::IMREAD_COLOR);	// cvImage to obraz wczytany do zmiennej typu IplImage
+				img = cv::cvarrToMat(cvImage);								// img to globalna zmienna reprezentuj¹ca obraz jako typ cv::Mat
 				loaded = true;
+				//cvImage = cvCloneImage(&(IplImage)img);					// konwersja z Mat do IplImage
 			}
 			catch (cv::Exception &ex) {
 				loaded = false;
@@ -411,13 +619,18 @@ namespace Projekt_PP {
 				return;
 			}
 			else {
-				image = gcnew Bitmap(cvImage->width, cvImage->height, cvImage->widthStep, Imaging::PixelFormat::Format24bppRgb, IntPtr(cvImage->imageData));
+			/*	if (cvImage->widthStep % 4) {
+					cvImage->widthStep += abs(cvImage->widthStep % 4 - 4);
+				}*/
+				image = gcnew Bitmap(img.cols, img.rows, img.step, Imaging::PixelFormat::Format24bppRgb, (IntPtr)img.data);
+				//image = gcnew Bitmap(cvImage->width, cvImage->height, cvImage->widthStep, Imaging::PixelFormat::Format24bppRgb, (IntPtr)cvImage->imageData);
+
 				pictureBox1->Width = image->Width;
 				pictureBox1->Height = image->Height;
 				pictureBox1->Image = image;
 				this->AutoSize = false;
 			}
-			/*	DON'T FORGET ABOUT MEMORY DISALLOCATION !!!
+			/*	DON'T FORGET ABOUT MEMORY DISALLOCATION !!!				// <------------- TO W PRZYPADKU IplImage, NIE cv:Mat !
 			if (cvImage != NULL) {
 			pin_ptr<IplImage*> p = &cvImage;
 			cvReleaseImage(p);
@@ -490,12 +703,13 @@ namespace Projekt_PP {
 			std::string _path= msclr::interop::marshal_as<std::string>(path->ToLower());
 			try {
 				cvImage = cvLoadImage(_path.c_str(), cv::IMREAD_COLOR);
+				img = cv::cvarrToMat(cvImage);								// img to globalna zmienna reprezentuj¹ca obraz jako typ cv::Mat
 			}
 			catch (cv::Exception e) {
 				MessageBox::Show("cvLoadImage error !");
 				return;
 			}
-			image = gcnew Bitmap(cvImage->width, cvImage->height, cvImage->widthStep, Imaging::PixelFormat::Format24bppRgb, IntPtr(cvImage->imageData));
+			image = gcnew Bitmap(img.cols, img.rows, img.step, Imaging::PixelFormat::Format24bppRgb, (IntPtr)img.data);
 			pictureBox1->Width = image->Width;
 			pictureBox1->Height = image->Height;
 			pictureBox1->Image = image;
