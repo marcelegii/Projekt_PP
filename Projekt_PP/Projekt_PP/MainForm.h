@@ -6,6 +6,8 @@
 #include <opencv2\imgcodecs.hpp>
 #include <opencv2\highgui.hpp>
 #include <opencv2\opencv.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/features2d/features2d.hpp>
 //#include "MouseEvent.h"
 #include <Windows.h>
 #include <iostream>
@@ -458,6 +460,7 @@ namespace Projekt_PP {
 			this->divideSectionToolStripMenuItem->Name = L"divideSectionToolStripMenuItem";
 			this->divideSectionToolStripMenuItem->Size = System::Drawing::Size(187, 22);
 			this->divideSectionToolStripMenuItem->Text = L"Divide Section";
+			this->divideSectionToolStripMenuItem->Click += gcnew System::EventHandler(this, &MainForm::divideSectionToolStripMenuItem_Click);
 			// 
 			// referenceToolStripMenuItem
 			// 
@@ -660,12 +663,22 @@ namespace Projekt_PP {
 	}
 
 	private: System::Void polyToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
-		POINT cursorPosition;
+		
+		/*POINT cursorPosition;
 		GetCursorPos(&cursorPosition);
 		std::cout << cursorPosition.x << " " << cursorPosition.y << std::endl;
+		*/
+		
+		img = cv::imread("splash.png", CV_LOAD_IMAGE_COLOR);
+		if (img.empty()) {
+			std::cout << "Cannot Open the immage" << std::endl;
+		}
+		cv::namedWindow("splash", CV_WINDOW_AUTOSIZE);
+		cv::imshow("splash", img);
+		cv::setMouseCallback("splash", onMouse, 0);
 
-
-
+		cv::waitKey(0);
+		
 	}
 
 			 //About
@@ -720,5 +733,8 @@ namespace Projekt_PP {
 
 			 
 	
+private: System::Void divideSectionToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
+	DivideSection();
+}
 };
 }
