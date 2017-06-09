@@ -20,45 +20,45 @@ struct wsp {
 
 std::vector <std::vector<wsp>> wektorKsztaltow;
 std::vector <wsp> wektorTemp;
-int count = 0;
+int count = 0, iwsk, jwsk;
+bool isPoli = false, moveStatus = false;
 cv::Mat orginalImg;
 cv::Mat img;
 
-static void DrawFigure(int x, int y) {
-	
-	if (count == 0) {
-		wektorTemp.push_back(wsp(x, y));
-		circle(img, cv::Point(x, y), 3.0, cv::Scalar(255, 0, 0), -1, 8);
-	}
-	if (count > 0) {
 
-		if ((abs(wektorTemp[0].x - x) < 8) && (abs(wektorTemp[0].y - y) < 8)) {
-			cv::line(img, cv::Point(wektorTemp[count - 1].x, wektorTemp[count - 1].y), cv::Point(wektorTemp[0].x, wektorTemp[0].y), cv::Scalar(255, 0, 0), 1, 8);
-			imshow("splash", img);
-			wektorKsztaltow.push_back(wektorTemp);//przepisz();
-			wektorTemp.clear();
-			count = -1;
-		}
-		else {
-			wektorTemp.push_back(wsp(x, y));
-			circle(img, cv::Point(wektorTemp[count].x, wektorTemp[count].y), 3.0, cv::Scalar(255, 0, 0), -1, 8);
-			cv::line(img, cv::Point(wektorTemp[count - 1].x, wektorTemp[count - 1].y), cv::Point(wektorTemp[count].x, wektorTemp[count].y), cv::Scalar(255, 0, 0), 1, 8);
-			imshow("splash", img);
-		}
-	}
-	count++;
+static void DrawFigure(int x, int y) {
+
+if (count == 0) {
+	wektorTemp.push_back(wsp(x, y));
+	circle(img, cv::Point(x, y), 3.0, cv::Scalar(255, 0, 0), -1, 8);
 }
+if (count > 0) {
+
+	if ((abs(wektorTemp[0].x - x) < 8) && (abs(wektorTemp[0].y - y) < 8)) {
+		cv::line(img, cv::Point(wektorTemp[count - 1].x, wektorTemp[count - 1].y), cv::Point(wektorTemp[0].x, wektorTemp[0].y), cv::Scalar(255, 0, 0), 1, 8);
+		imshow("splash", img);
+		wektorKsztaltow.push_back(wektorTemp);//przepisz();
+		wektorTemp.clear();
+		count = -1;
+		isPoli = false;
+	}
+	else {
+		wektorTemp.push_back(wsp(x, y));
+		circle(img, cv::Point(wektorTemp[count].x, wektorTemp[count].y), 3.0, cv::Scalar(255, 0, 0), -1, 8);
+		cv::line(img, cv::Point(wektorTemp[count - 1].x, wektorTemp[count - 1].y), cv::Point(wektorTemp[count].x, wektorTemp[count].y), cv::Scalar(255, 0, 0), 1, 8);
+		imshow("splash", img);
+	}
+}
+count++;
+}
+
 static void DrawAll() {
-	
+
 	orginalImg.copyTo(img);
 	for (int i = 0; i < wektorKsztaltow.size(); i++) {
-		for (int j = 0; j <= wektorKsztaltow[i].size()-1; j++) {
-			std::cout << wektorKsztaltow[i].size() << std::endl;;
-			std::cout << j;
+		for (int j = 0; j <= wektorKsztaltow[i].size() - 1; j++) {
 			if (j == wektorKsztaltow[i].size() - 1) {
-				
 				circle(img, cv::Point(wektorKsztaltow[i][j].x, wektorKsztaltow[i][j].y), 3.0, cv::Scalar(255, 0, 0), -1, 8);
-				std::cout << "here";
 				cv::line(img, cv::Point(wektorKsztaltow[i][j].x, wektorKsztaltow[i][j].y), cv::Point(wektorKsztaltow[i][0].x, wektorKsztaltow[i][0].y), cv::Scalar(255, 0, 0), 1, 8);
 
 			}
@@ -74,40 +74,91 @@ static void DrawAll() {
 
 static void DeleteAngle(int x, int y) {
 	for (int i = 0; i < wektorKsztaltow.size(); i++) {
-		for (int j = 0; j < wektorKsztaltow[i].size(); j++) {
-			if ((abs(wektorKsztaltow[i][j].x-x) < 3) && (abs(wektorKsztaltow[i][j].y - y) < 3)) {
-				wektorKsztaltow[i].erase(wektorKsztaltow[i].begin() + j);
-				DrawAll();
+		if ( (wektorKsztaltow[i].size() == 1)) {
+			wektorKsztaltow.erase(wektorKsztaltow.begin() + i);
+			DrawAll();
+		}
+		else {
+			for (int j = 0; j < wektorKsztaltow[i].size(); j++) {
+				if ((abs(wektorKsztaltow[i][j].x - x) < 3) && (abs(wektorKsztaltow[i][j].y - y) < 3)) {
+					wektorKsztaltow[i].erase(wektorKsztaltow[i].begin() + j);
+					DrawAll();
+				}
 			}
-		}
-	}
 
-	for (int i = 0; i < wektorKsztaltow.size(); i++) {
-		for (int j = 0; j < wektorKsztaltow[i].size(); j++) {
-			std::cout << "x: " << wektorKsztaltow[i][j].x<< " y: " << wektorKsztaltow[i][j].y<<std::endl;
 		}
 	}
+	/*for (int i = 0; i < wektorKsztaltow.size(); i++) {
+		for (int j = 0; j < wektorKsztaltow[i].size(); j++) {
+			std::cout << "x: " << wektorKsztaltow[i][j].x << " y: " << wektorKsztaltow[i][j].y << std::endl;
+		}
+	}*/
 }
 
+static void MovePoint(int x, int y) {
+	
+}
 static void onMouse(int event, int x, int y, int, void*) {
 	cv::Mat copy;
+	
 
-	switch (event)
-	{
-	case CV_EVENT_LBUTTONDOWN:
-		DrawFigure(x, y);
-		break;
-	case CV_EVENT_RBUTTONDOWN:
-		DeleteAngle(x, y);
-		break;
-	default:
-		if (count != 0) {
-			img.copyTo(copy);
-			if ((abs(wektorTemp[0].x - x) < 8) && (abs(wektorTemp[0].y - y) < 8)) {
-				circle(copy, cv::Point(x,y), 10.0, cv::Scalar(255, 0, 0), 0, 8);
+	if (isPoli) {
+		switch (event)
+		{
+		case CV_EVENT_LBUTTONDOWN:
+			DrawFigure(x, y);
+			break;
+		default:
+			if (count != 0) {
+				img.copyTo(copy);
+				if ((abs(wektorTemp[0].x - x) < 8) && (abs(wektorTemp[0].y - y) < 8)) {
+					circle(copy, cv::Point(x, y), 10.0, cv::Scalar(255, 0, 0), 0, 8);
+				}
+
+				cv::line(copy, cv::Point(wektorTemp[count - 1].x, wektorTemp[count - 1].y), cv::Point(x, y), cv::Scalar(255, 0, 0), 1, 8);
+				imshow("splash", copy);
 			}
-			
-			cv::line(copy, cv::Point(wektorTemp[count - 1].x, wektorTemp[count - 1].y), cv::Point(x, y), cv::Scalar(255, 0, 0), 1, 8);
+		}
+	}
+	else {
+		if (moveStatus) {
+			std::cout << "yolo";
+			wektorKsztaltow[iwsk].erase(wektorKsztaltow[iwsk].begin() + jwsk);
+			wektorKsztaltow[iwsk].insert(wektorKsztaltow[iwsk].begin() + jwsk, wsp(x, y));
+			DrawAll();
+		}
+		switch (event) {
+		case CV_EVENT_LBUTTONDOWN:
+			if (event == CV_EVENT_LBUTTONDOWN) {
+				for (int i = 0; i < wektorKsztaltow.size(); i++) {
+					for (int j = 0; j < wektorKsztaltow[i].size(); j++) {
+						if ((abs(wektorKsztaltow[i][j].x - x) < 8) && (abs(wektorKsztaltow[i][j].y - y) < 8)) {
+							iwsk = i;
+							jwsk = j;						
+							moveStatus = true;
+						}
+					}
+				}
+			}
+			break;
+		case CV_EVENT_LBUTTONUP:
+			moveStatus = false;
+			break;
+		case CV_EVENT_RBUTTONDOWN:
+			DeleteAngle(x, y);
+			break;
+		default:
+			img.copyTo(copy);
+			for (int i = 0; i < wektorKsztaltow.size(); i++) {
+				for (int j = 0; j < wektorKsztaltow[i].size(); j++) {
+					if ((abs(wektorKsztaltow[i][j].x - x) < 8) && (abs(wektorKsztaltow[i][j].y - y) < 8)) {	
+						circle(copy, cv::Point(x, y), 10.0, cv::Scalar(255, 0, 0), 0, 8);
+						iwsk = i;
+						jwsk = j;
+						imshow("splash", copy);
+					}
+				}
+			}
 			imshow("splash", copy);
 		}
 	}
@@ -235,6 +286,7 @@ static void DivideSection() {
 	}
 
 }
+
 
 
 namespace Projekt_PP {
@@ -614,11 +666,9 @@ namespace Projekt_PP {
 		openFileDialog1->Filter = "Image Files|*.BMP;*.JPG;*.PNG|All files (*.*)|*.*";
 		openFileDialog1->Title = "Select a File";
 
-
 		if (openFileDialog1->ShowDialog() == System::Windows::Forms::DialogResult::OK)
 		{
 			bool loaded = false;
-			cv::Mat temp;
 
 			this->Cursor;
 
@@ -626,8 +676,20 @@ namespace Projekt_PP {
 				// Microsoft provided code : System::String to basic string
 				std::string filePath = msclr::interop::marshal_as<std::string>(openFileDialog1->FileName);
 
-				cvImage = cvLoadImage(filePath.c_str(), cv::IMREAD_COLOR);
+				//temp = cv::imread(filePath.c_str());
+
+
+
+				//Test 2
+				cvImage = cvLoadImage(filePath.c_str(), cv::IMREAD_COLOR);	// cvImage to obraz wczytany do zmiennej typu IplImage
+				img = cv::cvarrToMat(cvImage);								// img to globalna zmienna reprezentuj¹ca obraz jako typ cv::Mat
 				loaded = true;
+				//cvImage = cvCloneImage(&(IplImage)img);					// konwersja z Mat do IplImage
+				
+				//dodalem do nowego okna Damian
+				img.copyTo(orginalImg);
+				cv::namedWindow("splash", CV_WINDOW_AUTOSIZE);
+				cv::imshow("splash", img);
 			}
 			catch (cv::Exception &ex) {
 				loaded = false;
@@ -638,13 +700,18 @@ namespace Projekt_PP {
 				return;
 			}
 			else {
-				image = gcnew Bitmap(cvImage->width, cvImage->height, cvImage->widthStep, Imaging::PixelFormat::Format24bppRgb, IntPtr(cvImage->imageData));
+				/*	if (cvImage->widthStep % 4) {
+				cvImage->widthStep += abs(cvImage->widthStep % 4 - 4);
+				}*/
+				image = gcnew Bitmap(img.cols, img.rows, img.step, Imaging::PixelFormat::Format24bppRgb, (IntPtr)img.data);
+				//image = gcnew Bitmap(cvImage->width, cvImage->height, cvImage->widthStep, Imaging::PixelFormat::Format24bppRgb, (IntPtr)cvImage->imageData);
+
 				pictureBox1->Width = image->Width;
 				pictureBox1->Height = image->Height;
 				pictureBox1->Image = image;
 				this->AutoSize = false;
 			}
-			/*	DON'T FORGET ABOUT MEMORY DISALLOCATION !!!
+			/*	DON'T FORGET ABOUT MEMORY DISALLOCATION !!!				// <------------- TO W PRZYPADKU IplImage, NIE cv:Mat !
 			if (cvImage != NULL) {
 			pin_ptr<IplImage*> p = &cvImage;
 			cvReleaseImage(p);
@@ -667,27 +734,32 @@ namespace Projekt_PP {
 				cvSaveImage(filePath.c_str(), cvImage);
 			}
 			else {
-				MessageBox::Show("Nie wczyta³eœ obrazu!");
+				MessageBox::Show("Nie wczyta³e obrazu!");
 			}
 
 		}
 	}
 
 	private: System::Void polyToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
+		isPoli = true;
+		/*POINT cursorPosition;
+		GetCursorPos(&cursorPosition);
+		std::cout << cursorPosition.x << " " << cursorPosition.y << std::endl;
+		
 		img = cv::imread("splash.png", CV_LOAD_IMAGE_COLOR);
 		if (img.empty()) {
 			std::cout << "Cannot Open the immage" << std::endl;
 		}
-		img.copyTo(orginalImg);
+		
 		cv::namedWindow("splash", CV_WINDOW_AUTOSIZE);
 		cv::imshow("splash", img);
-		cv::setMouseCallback("splash", onMouse, 0);
+		*/
 		
-		cv::waitKey(0);	
+		cv::setMouseCallback("splash", onMouse, 0);
+		cv::waitKey(0);
+
 	}
-	private: System::Void divideSectionToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
-		DivideSection();
-	}
+
 			 //About
 	private: System::Void aboutToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
 		MessageBox::Show("CAS--Cell Annotation Software\nAuthors:\n", "CAS_About");
@@ -720,15 +792,16 @@ namespace Projekt_PP {
 		array<String^>^ paths = safe_cast<array<String^>^>(e->Data->GetData(DataFormats::FileDrop));
 		for each (String^ path in paths) {
 			std::string fileName = msclr::interop::marshal_as<std::string>(System::IO::Path::GetFileNameWithoutExtension(path)->ToLower());
-			std::string _path= msclr::interop::marshal_as<std::string>(path->ToLower());
+			std::string _path = msclr::interop::marshal_as<std::string>(path->ToLower());
 			try {
 				cvImage = cvLoadImage(_path.c_str(), cv::IMREAD_COLOR);
+				img = cv::cvarrToMat(cvImage);								// img to globalna zmienna reprezentuj¹ca obraz jako typ cv::Mat
 			}
 			catch (cv::Exception e) {
 				MessageBox::Show("cvLoadImage error !");
 				return;
 			}
-			image = gcnew Bitmap(cvImage->width, cvImage->height, cvImage->widthStep, Imaging::PixelFormat::Format24bppRgb, IntPtr(cvImage->imageData));
+			image = gcnew Bitmap(img.cols, img.rows, img.step, Imaging::PixelFormat::Format24bppRgb, (IntPtr)img.data);
 			pictureBox1->Width = image->Width;
 			pictureBox1->Height = image->Height;
 			pictureBox1->Image = image;
@@ -737,8 +810,10 @@ namespace Projekt_PP {
 		}
 	}
 
-			 
-	
-};
 
+
+	private: System::Void divideSectionToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
+		DivideSection();
+	}
+	};
 }
