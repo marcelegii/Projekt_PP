@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include"optionsForm.h";
 #include"SettingsAnnotationForm.h";
 #include <msclr\marshal_cppstd.h>
@@ -10,6 +10,232 @@
 #include <Windows.h>
 #include <iostream>
 #include<string>
+#include <vector>
+
+struct wsp {
+	int x;
+	int y;
+	wsp(int a, int b) { x = a; y = b; }
+};
+
+std::vector <std::vector<wsp>> wektorKsztaltow;
+std::vector <wsp> wektorTemp;
+int count = 0;
+cv::Mat orginalImg;
+cv::Mat img;
+
+static void DrawFigure(int x, int y) {
+	
+	if (count == 0) {
+		wektorTemp.push_back(wsp(x, y));
+		circle(img, cv::Point(x, y), 3.0, cv::Scalar(255, 0, 0), -1, 8);
+	}
+	if (count > 0) {
+
+		if ((abs(wektorTemp[0].x - x) < 8) && (abs(wektorTemp[0].y - y) < 8)) {
+			cv::line(img, cv::Point(wektorTemp[count - 1].x, wektorTemp[count - 1].y), cv::Point(wektorTemp[0].x, wektorTemp[0].y), cv::Scalar(255, 0, 0), 1, 8);
+			imshow("splash", img);
+			wektorKsztaltow.push_back(wektorTemp);//przepisz();
+			wektorTemp.clear();
+			count = -1;
+		}
+		else {
+			wektorTemp.push_back(wsp(x, y));
+			circle(img, cv::Point(wektorTemp[count].x, wektorTemp[count].y), 3.0, cv::Scalar(255, 0, 0), -1, 8);
+			cv::line(img, cv::Point(wektorTemp[count - 1].x, wektorTemp[count - 1].y), cv::Point(wektorTemp[count].x, wektorTemp[count].y), cv::Scalar(255, 0, 0), 1, 8);
+			imshow("splash", img);
+		}
+	}
+	count++;
+}
+static void DrawAll() {
+	
+	orginalImg.copyTo(img);
+	for (int i = 0; i < wektorKsztaltow.size(); i++) {
+		for (int j = 0; j <= wektorKsztaltow[i].size()-1; j++) {
+			std::cout << wektorKsztaltow[i].size() << std::endl;;
+			std::cout << j;
+			if (j == wektorKsztaltow[i].size() - 1) {
+				
+				circle(img, cv::Point(wektorKsztaltow[i][j].x, wektorKsztaltow[i][j].y), 3.0, cv::Scalar(255, 0, 0), -1, 8);
+				std::cout << "here";
+				cv::line(img, cv::Point(wektorKsztaltow[i][j].x, wektorKsztaltow[i][j].y), cv::Point(wektorKsztaltow[i][0].x, wektorKsztaltow[i][0].y), cv::Scalar(255, 0, 0), 1, 8);
+
+			}
+			else {
+				circle(img, cv::Point(wektorKsztaltow[i][j].x, wektorKsztaltow[i][j].y), 3.0, cv::Scalar(255, 0, 0), -1, 8);
+				cv::line(img, cv::Point(wektorKsztaltow[i][j].x, wektorKsztaltow[i][j].y), cv::Point(wektorKsztaltow[i][j + 1].x, wektorKsztaltow[i][j + 1].y), cv::Scalar(255, 0, 0), 1, 8);
+			}
+		}
+	}
+
+	cv::imshow("splash", img);
+}
+
+static void DeleteAngle(int x, int y) {
+	for (int i = 0; i < wektorKsztaltow.size(); i++) {
+		for (int j = 0; j < wektorKsztaltow[i].size(); j++) {
+			if ((abs(wektorKsztaltow[i][j].x-x) < 3) && (abs(wektorKsztaltow[i][j].y - y) < 3)) {
+				wektorKsztaltow[i].erase(wektorKsztaltow[i].begin() + j);
+				DrawAll();
+			}
+		}
+	}
+
+	for (int i = 0; i < wektorKsztaltow.size(); i++) {
+		for (int j = 0; j < wektorKsztaltow[i].size(); j++) {
+			std::cout << "x: " << wektorKsztaltow[i][j].x<< " y: " << wektorKsztaltow[i][j].y<<std::endl;
+		}
+	}
+}
+
+static void onMouse(int event, int x, int y, int, void*) {
+	cv::Mat copy;
+
+	switch (event)
+	{
+	case CV_EVENT_LBUTTONDOWN:
+		DrawFigure(x, y);
+		break;
+	case CV_EVENT_RBUTTONDOWN:
+		DeleteAngle(x, y);
+		break;
+	default:
+		if (count != 0) {
+			img.copyTo(copy);
+			if ((abs(wektorTemp[0].x - x) < 8) && (abs(wektorTemp[0].y - y) < 8)) {
+				circle(copy, cv::Point(x,y), 10.0, cv::Scalar(255, 0, 0), 0, 8);
+			}
+			
+			cv::line(copy, cv::Point(wektorTemp[count - 1].x, wektorTemp[count - 1].y), cv::Point(x, y), cv::Scalar(255, 0, 0), 1, 8);
+			imshow("splash", copy);
+		}
+	}
+}
+
+
+static int calculatePoint(int x1, int y1, int x2, int y2, int x) {
+	float a = (float)(y1 - y2) / (float)(x1 - x2);
+	float b = (float)y1 - (float)a*x1;
+	return (a * x + b);
+}
+
+static void DivideSectionCalculate(int pos) {
+	int points = 20, j = 20;
+	int vectorSize = wektorKsztaltow[pos].size() ;///-1 !!!!!!!!!!!
+	//std::cout << "   " << vectorSize;
+	POINT tabPointUp[50], tabPointDown[50];
+	float point = 0;
+	float x = 0, y1 = 0, sum = 0, y2 = 0, high = 0;
+	
+	int up = 0, down = 0;
+	int left = wektorKsztaltow[pos][0].x;
+	int right = wektorKsztaltow[pos][0].x;
+	for (int i = 1; i < vectorSize; i++) {
+		if (left > wektorKsztaltow[pos][i].x) {
+			left = wektorKsztaltow[pos][i].x;
+			up = i;
+		}
+		else if (right<wektorKsztaltow[pos][i].x) {
+			right = wektorKsztaltow[pos][i].x;
+		}
+	}
+	down = up;
+
+	sum = (float)(right - left) / points;
+	
+	x = left + sum;
+	std::cout << "   " << sum << "   " << left << "   " << x;
+	//ktory jest najbardziej w lewo
+	
+	do {
+
+		for(int i = 0; i < vectorSize; i++){
+			if (down == 0) {
+				if (x > wektorKsztaltow[pos][vectorSize - 1].x) {
+					down--;
+					if (down == -1) {
+						down = vectorSize - 1;
+					}
+				}
+			}
+			else if (x > wektorKsztaltow[pos][down - 1].x) {
+				down--;
+				if (down == -1) {
+					down = vectorSize - 1;
+				}
+			}
+
+			if (x > wektorKsztaltow[pos][up + 1].x) {
+				up++;
+				if (up == vectorSize-1) {
+					up = 0;
+				}
+			}
+		}
+		if (down == 0) {
+			//y1 = calculatePoint(tab[up][0], tab[up][1], tab[up + 1][0], tab[up + 1][1], x);
+			//y2 = calculatePoint(tab[down][0], tab[down][1], tab[countAngle - 1][0], tab[countAngle - 1][1], x);
+			y1 = calculatePoint(wektorKsztaltow[pos][up].x, wektorKsztaltow[pos][up].y, wektorKsztaltow[pos][up + 1].x, wektorKsztaltow[pos][up+1].y, x);
+			y2 = calculatePoint(wektorKsztaltow[pos][down].x, wektorKsztaltow[pos][down].y, wektorKsztaltow[pos][vectorSize - 1].x, wektorKsztaltow[pos][vectorSize - 1].y, x);
+		}
+		else if (up == vectorSize-1) {//vektorsize -1
+						   //y1 = calculatePoint(tab[up][0], tab[up][1], tab[0][0], tab[0][1], x);
+						   //y2 = calculatePoint(tab[down][0], tab[down][1], tab[down - 1][0], tab[down - 1][1], x);
+			y1 = calculatePoint(wektorKsztaltow[pos][up].x, wektorKsztaltow[pos][up].y, wektorKsztaltow[pos][0].x, wektorKsztaltow[pos][0].y, x);
+			y2 = calculatePoint(wektorKsztaltow[pos][down].x, wektorKsztaltow[pos][down].y, wektorKsztaltow[pos][down - 1].x, wektorKsztaltow[pos][down - 1].y, x);
+		}
+		else {
+			//y1 = calculatePoint(tab[up][0], tab[up][1], tab[up + 1][0], tab[up + 1][1], x);
+			//y2 = calculatePoint(tab[down][0], tab[down][1], tab[down - 1][0], tab[down - 1][1], x);
+			y1 = calculatePoint(wektorKsztaltow[pos][up].x, wektorKsztaltow[pos][up].y, wektorKsztaltow[pos][up + 1].x, wektorKsztaltow[pos][up+1].y, x);
+			y2 = calculatePoint(wektorKsztaltow[pos][down].x, wektorKsztaltow[pos][down].y, wektorKsztaltow[pos][down - 1].x, wektorKsztaltow[pos][down - 1].y, x);
+		
+		}
+
+		high = y1 - y2;
+
+		circle(img, cv::Point(x, (2 * high / 3) + y2), 3.0, cv::Scalar(0, 255, 0), -1, 8);
+		circle(img, cv::Point(x, (high / 3) + y2), 3.0, cv::Scalar(0, 255, 255), -1, 8);
+		tabPointUp[points].x = x;
+		tabPointUp[points].y = (2 * high / 3) + y2;
+		tabPointDown[points].x = x;
+		tabPointDown[points].y = high / 3 + y2;
+
+
+		x = x + sum;
+		
+		points--;
+	} while (points > 1);
+
+
+	for (j; j != 2; j--) {
+		cv::line(img, cv::Point(tabPointUp[j].x, tabPointUp[j].y), cv::Point(tabPointUp[j - 1].x, tabPointUp[j - 1].y), cv::Scalar(0, 255, 0), 1, 8);
+		cv::line(img, cv::Point(tabPointDown[j].x, tabPointDown[j].y), cv::Point(tabPointDown[j - 1].x, tabPointDown[j - 1].y), cv::Scalar(0, 255, 255), 1, 8);
+	}
+	imshow("splash", img);
+}
+
+
+static void DivideSection() {
+	//for (int i = 0; i < 30; i++) {
+	//	std::cout << "x: " << tabmemory[i][0] << "  y: " << tabmemory[i][1] << std::endl;
+	//}
+	/*
+	int i = 0;
+	do {
+	i = madeTab(i);
+	DivideSectionCalculate();
+	//std::cout << " here";
+	i++;
+	} while (tabmemory[i][0] != 0 && tabmemory[i + 1][0] != 0);
+	*/
+	for (int i = 0; i < wektorKsztaltow.size(); i++) {
+		DivideSectionCalculate(i);
+	}
+
+}
+
 
 namespace Projekt_PP {
 
@@ -255,6 +481,7 @@ namespace Projekt_PP {
 			this->divideSectionToolStripMenuItem->Name = L"divideSectionToolStripMenuItem";
 			this->divideSectionToolStripMenuItem->Size = System::Drawing::Size(187, 22);
 			this->divideSectionToolStripMenuItem->Text = L"Divide Section";
+			this->divideSectionToolStripMenuItem->Click += gcnew System::EventHandler(this, &MainForm::divideSectionToolStripMenuItem_Click);
 			// 
 			// referenceToolStripMenuItem
 			// 
@@ -440,21 +667,27 @@ namespace Projekt_PP {
 				cvSaveImage(filePath.c_str(), cvImage);
 			}
 			else {
-				MessageBox::Show("Nie wczyta³eœ obrazu!");
+				MessageBox::Show("Nie wczytaÂ³eÅ“ obrazu!");
 			}
 
 		}
 	}
 
 	private: System::Void polyToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
-		POINT cursorPosition;
-		GetCursorPos(&cursorPosition);
-		std::cout << cursorPosition.x << " " << cursorPosition.y << std::endl;
-
-
-
+		img = cv::imread("splash.png", CV_LOAD_IMAGE_COLOR);
+		if (img.empty()) {
+			std::cout << "Cannot Open the immage" << std::endl;
+		}
+		img.copyTo(orginalImg);
+		cv::namedWindow("splash", CV_WINDOW_AUTOSIZE);
+		cv::imshow("splash", img);
+		cv::setMouseCallback("splash", onMouse, 0);
+		
+		cv::waitKey(0);	
 	}
-
+	private: System::Void divideSectionToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
+		DivideSection();
+	}
 			 //About
 	private: System::Void aboutToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
 		MessageBox::Show("CAS--Cell Annotation Software\nAuthors:\n", "CAS_About");
@@ -507,4 +740,5 @@ namespace Projekt_PP {
 			 
 	
 };
+
 }
