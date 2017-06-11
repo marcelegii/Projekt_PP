@@ -1,4 +1,4 @@
-﻿#pragma once
+ï»¿#pragma once
 #include"optionsForm.h";
 #include"SettingsAnnotationForm.h";
 #include <msclr\marshal_cppstd.h>
@@ -6,9 +6,12 @@
 #include <opencv2\imgcodecs.hpp>
 #include <opencv2\highgui.hpp>
 #include <opencv2\opencv.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/features2d/features2d.hpp>
 //#include "MouseEvent.h"
 #include <Windows.h>
 #include <iostream>
+
 #include<string>
 #include <vector>
 
@@ -164,12 +167,12 @@ static void onMouse(int event, int x, int y, int, void*) {
 	}
 }
 
-
 static int calculatePoint(int x1, int y1, int x2, int y2, int x) {
 	float a = (float)(y1 - y2) / (float)(x1 - x2);
 	float b = (float)y1 - (float)a*x1;
 	return (a * x + b);
 }
+
 
 static void DivideSectionCalculate(int pos) {
 	int points = 20, j = 20;
@@ -241,7 +244,6 @@ static void DivideSectionCalculate(int pos) {
 			//y2 = calculatePoint(tab[down][0], tab[down][1], tab[down - 1][0], tab[down - 1][1], x);
 			y1 = calculatePoint(wektorKsztaltow[pos][up].x, wektorKsztaltow[pos][up].y, wektorKsztaltow[pos][up + 1].x, wektorKsztaltow[pos][up+1].y, x);
 			y2 = calculatePoint(wektorKsztaltow[pos][down].x, wektorKsztaltow[pos][down].y, wektorKsztaltow[pos][down - 1].x, wektorKsztaltow[pos][down - 1].y, x);
-		
 		}
 
 		high = y1 - y2;
@@ -255,12 +257,14 @@ static void DivideSectionCalculate(int pos) {
 
 
 		x = x + sum;
+
 		
 		points--;
 	} while (points > 1);
 
 
 	for (j; j != 2; j--) {
+
 		cv::line(img, cv::Point(tabPointUp[j].x, tabPointUp[j].y), cv::Point(tabPointUp[j - 1].x, tabPointUp[j - 1].y), cv::Scalar(0, 255, 0), 1, 8);
 		cv::line(img, cv::Point(tabPointDown[j].x, tabPointDown[j].y), cv::Point(tabPointDown[j - 1].x, tabPointDown[j - 1].y), cv::Scalar(0, 255, 255), 1, 8);
 	}
@@ -268,10 +272,13 @@ static void DivideSectionCalculate(int pos) {
 }
 
 
+
+
 static void DivideSection() {
 	//for (int i = 0; i < 30; i++) {
 	//	std::cout << "x: " << tabmemory[i][0] << "  y: " << tabmemory[i][1] << std::endl;
 	//}
+
 	/*
 	int i = 0;
 	do {
@@ -284,6 +291,7 @@ static void DivideSection() {
 	for (int i = 0; i < wektorKsztaltow.size(); i++) {
 		DivideSectionCalculate(i);
 	}
+
 
 }
 
@@ -680,9 +688,11 @@ namespace Projekt_PP {
 
 
 
+
 				//Test 2
 				cvImage = cvLoadImage(filePath.c_str(), cv::IMREAD_COLOR);	// cvImage to obraz wczytany do zmiennej typu IplImage
-				img = cv::cvarrToMat(cvImage);								// img to globalna zmienna reprezentuj¹ca obraz jako typ cv::Mat
+
+				img = cv::cvarrToMat(cvImage);								// img to globalna zmienna reprezentujÂ¹ca obraz jako typ cv::Mat
 				loaded = true;
 				//cvImage = cvCloneImage(&(IplImage)img);					// konwersja z Mat do IplImage
 				
@@ -690,6 +700,11 @@ namespace Projekt_PP {
 				img.copyTo(orginalImg);
 				cv::namedWindow("splash", CV_WINDOW_AUTOSIZE);
 				cv::imshow("splash", img);
+
+				img = cv::cvarrToMat(cvImage);								// img to globalna zmienna reprezentuj¹ca obraz jako typ cv::Mat
+				loaded = true;
+				//cvImage = cvCloneImage(&(IplImage)img);					// konwersja z Mat do IplImage
+
 			}
 			catch (cv::Exception &ex) {
 				loaded = false;
@@ -700,8 +715,10 @@ namespace Projekt_PP {
 				return;
 			}
 			else {
+
 				/*	if (cvImage->widthStep % 4) {
 				cvImage->widthStep += abs(cvImage->widthStep % 4 - 4);
+
 				}*/
 				image = gcnew Bitmap(img.cols, img.rows, img.step, Imaging::PixelFormat::Format24bppRgb, (IntPtr)img.data);
 				//image = gcnew Bitmap(cvImage->width, cvImage->height, cvImage->widthStep, Imaging::PixelFormat::Format24bppRgb, (IntPtr)cvImage->imageData);
@@ -734,22 +751,25 @@ namespace Projekt_PP {
 				cvSaveImage(filePath.c_str(), cvImage);
 			}
 			else {
-				MessageBox::Show("Nie wczyta³e obrazu!");
+				MessageBox::Show("Nie wczytaÂ³eÂ obrazu!");
 			}
 
 		}
 	}
 
 	private: System::Void polyToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
+
 		isPoli = true;
 		/*POINT cursorPosition;
 		GetCursorPos(&cursorPosition);
 		std::cout << cursorPosition.x << " " << cursorPosition.y << std::endl;
+
 		
 		img = cv::imread("splash.png", CV_LOAD_IMAGE_COLOR);
 		if (img.empty()) {
 			std::cout << "Cannot Open the immage" << std::endl;
 		}
+
 		
 		cv::namedWindow("splash", CV_WINDOW_AUTOSIZE);
 		cv::imshow("splash", img);
@@ -795,7 +815,9 @@ namespace Projekt_PP {
 			std::string _path = msclr::interop::marshal_as<std::string>(path->ToLower());
 			try {
 				cvImage = cvLoadImage(_path.c_str(), cv::IMREAD_COLOR);
-				img = cv::cvarrToMat(cvImage);								// img to globalna zmienna reprezentuj¹ca obraz jako typ cv::Mat
+
+				img = cv::cvarrToMat(cvImage);								// img to globalna zmienna reprezentujÂ¹ca obraz jako typ cv::Mat
+
 			}
 			catch (cv::Exception e) {
 				MessageBox::Show("cvLoadImage error !");
@@ -809,7 +831,6 @@ namespace Projekt_PP {
 
 		}
 	}
-
 
 
 	private: System::Void divideSectionToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
