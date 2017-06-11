@@ -1,4 +1,4 @@
-#pragma once
+Ã¯Â»Â¿#pragma once
 #include"optionsForm.h";
 #include"SettingsAnnotationForm.h";
 #include <msclr\marshal_cppstd.h>
@@ -11,127 +11,239 @@
 //#include "MouseEvent.h"
 #include <Windows.h>
 #include <iostream>
-#include <string>
-#include "matConvert.h"
 
-int tab[200][2], count = 0;
-int tabmemory[200][2];
+#include<string>
+#include <vector>
+
+struct wsp {
+	int x;
+	int y;
+	wsp(int a, int b) { x = a; y = b; }
+};
+
+std::vector <std::vector<wsp>> wektorKsztaltow;
+std::vector <wsp> wektorTemp;
+int count = 0, iwsk, jwsk;
+bool isPoli = false, moveStatus = false;
+cv::Mat orginalImg;
 cv::Mat img;
-bool end = false;
-
-/*
-	INFO DLA DAMIANA
-	Nie wiem jak to wywo³aæ, zrób tak, ¿eby Twoja funkcja zmieniaj¹ca sprawdza³a czy obraz zosta³ wczytany. 
-	Po wczytaniu jest automatycznie konwertowany i ³adowany do tego globalnego cv::Mat img.
 
 
-*/
-static void przepisz() {
-	int ile = 0;
-	if (tabmemory[ile][0] != 0) {
-		do {
-			ile++;
-		} while (tabmemory[ile][0] != 0 && tabmemory[ile + 1][0] != 0);
-		ile++;
-	}
+static void DrawFigure(int x, int y) {
 
-
-	for (int i = 0; i <= count; i++) {
-		//std::cout << i;
-		//std::cout << ile;
-		tabmemory[ile][0] = tab[i][0];
-		tabmemory[ile][1] = tab[i][1];
-		//std::cout << "x: " << tabmemory[ile][0] << "  y: " << tabmemory[ile][1] << std::endl;
-		ile++;
-
-
-	}
-	count = -1;
+if (count == 0) {
+	wektorTemp.push_back(wsp(x, y));
+	circle(img, cv::Point(x, y), 3.0, cv::Scalar(255, 0, 0), -1, 8);
 }
-static void onMouse(int event, int x, int y, int, void*) {
+if (count > 0) {
 
-	switch (event)
-	{
-	case CV_EVENT_LBUTTONDOWN:
-		//std::cout << " here";
-		tab[count][0] = x;
-		tab[count][1] = y;
-		if (count == 0) {
-			circle(img, cv::Point(tab[count][0], tab[count][1]), 3.0, cv::Scalar(255, 0, 0), -1, 8);
-		}
+	if ((abs(wektorTemp[0].x - x) < 8) && (abs(wektorTemp[0].y - y) < 8)) {
+		cv::line(img, cv::Point(wektorTemp[count - 1].x, wektorTemp[count - 1].y), cv::Point(wektorTemp[0].x, wektorTemp[0].y), cv::Scalar(255, 0, 0), 1, 8);
+		imshow("splash", img);
+		wektorKsztaltow.push_back(wektorTemp);//przepisz();
+		wektorTemp.clear();
+		count = -1;
+		isPoli = false;
+	}
+	else {
+		wektorTemp.push_back(wsp(x, y));
+		circle(img, cv::Point(wektorTemp[count].x, wektorTemp[count].y), 3.0, cv::Scalar(255, 0, 0), -1, 8);
+		cv::line(img, cv::Point(wektorTemp[count - 1].x, wektorTemp[count - 1].y), cv::Point(wektorTemp[count].x, wektorTemp[count].y), cv::Scalar(255, 0, 0), 1, 8);
+		imshow("splash", img);
+	}
+}
+count++;
+}
 
-		if (count > 0) {
-			if ((abs(tab[0][0] - x) < 8) && (abs(tab[0][1] - y) < 8)) {
-				cv::line(img, cv::Point(tab[count - 1][0], tab[count - 1][1]), cv::Point(tab[0][0], tab[0][1]), cv::Scalar(255, 0, 0), 1, 8);
-				tab[count][0] = tab[0][0];
-				tab[count][1] = tab[0][1];
-				imshow("splash", img);
-				przepisz();
+static void DrawAll() {
+
+	orginalImg.copyTo(img);
+	for (int i = 0; i < wektorKsztaltow.size(); i++) {
+		for (int j = 0; j <= wektorKsztaltow[i].size() - 1; j++) {
+			if (j == wektorKsztaltow[i].size() - 1) {
+				circle(img, cv::Point(wektorKsztaltow[i][j].x, wektorKsztaltow[i][j].y), 3.0, cv::Scalar(255, 0, 0), -1, 8);
+				cv::line(img, cv::Point(wektorKsztaltow[i][j].x, wektorKsztaltow[i][j].y), cv::Point(wektorKsztaltow[i][0].x, wektorKsztaltow[i][0].y), cv::Scalar(255, 0, 0), 1, 8);
 
 			}
 			else {
-				circle(img, cv::Point(tab[count][0], tab[count][1]), 3.0, cv::Scalar(255, 0, 0), -1, 8);
-				cv::line(img, cv::Point(tab[count - 1][0], tab[count - 1][1]), cv::Point(tab[count][0], tab[count][1]), cv::Scalar(255, 0, 0), 1, 8);
-				imshow("splash", img);
+				circle(img, cv::Point(wektorKsztaltow[i][j].x, wektorKsztaltow[i][j].y), 3.0, cv::Scalar(255, 0, 0), -1, 8);
+				cv::line(img, cv::Point(wektorKsztaltow[i][j].x, wektorKsztaltow[i][j].y), cv::Point(wektorKsztaltow[i][j + 1].x, wektorKsztaltow[i][j + 1].y), cv::Scalar(255, 0, 0), 1, 8);
 			}
 		}
-		//std::cout << count;
-		count++;
-		break;
+	}
+
+	cv::imshow("splash", img);
+}
+
+static void DeleteAngle(int x, int y) {
+	for (int i = 0; i < wektorKsztaltow.size(); i++) {
+		if ( (wektorKsztaltow[i].size() == 1)) {
+			wektorKsztaltow.erase(wektorKsztaltow.begin() + i);
+			DrawAll();
+		}
+		else {
+			for (int j = 0; j < wektorKsztaltow[i].size(); j++) {
+				if ((abs(wektorKsztaltow[i][j].x - x) < 3) && (abs(wektorKsztaltow[i][j].y - y) < 3)) {
+					wektorKsztaltow[i].erase(wektorKsztaltow[i].begin() + j);
+					DrawAll();
+				}
+			}
+
+		}
+	}
+	/*for (int i = 0; i < wektorKsztaltow.size(); i++) {
+		for (int j = 0; j < wektorKsztaltow[i].size(); j++) {
+			std::cout << "x: " << wektorKsztaltow[i][j].x << " y: " << wektorKsztaltow[i][j].y << std::endl;
+		}
+	}*/
+}
+
+static void MovePoint(int x, int y) {
+	
+}
+static void onMouse(int event, int x, int y, int, void*) {
+	cv::Mat copy;
+	
+
+	if (isPoli) {
+		switch (event)
+		{
+		case CV_EVENT_LBUTTONDOWN:
+			DrawFigure(x, y);
+			break;
+		default:
+			if (count != 0) {
+				img.copyTo(copy);
+				if ((abs(wektorTemp[0].x - x) < 8) && (abs(wektorTemp[0].y - y) < 8)) {
+					circle(copy, cv::Point(x, y), 10.0, cv::Scalar(255, 0, 0), 0, 8);
+				}
+
+				cv::line(copy, cv::Point(wektorTemp[count - 1].x, wektorTemp[count - 1].y), cv::Point(x, y), cv::Scalar(255, 0, 0), 1, 8);
+				imshow("splash", copy);
+			}
+		}
+	}
+	else {
+		if (moveStatus) {
+			std::cout << "yolo";
+			wektorKsztaltow[iwsk].erase(wektorKsztaltow[iwsk].begin() + jwsk);
+			wektorKsztaltow[iwsk].insert(wektorKsztaltow[iwsk].begin() + jwsk, wsp(x, y));
+			DrawAll();
+		}
+		switch (event) {
+		case CV_EVENT_LBUTTONDOWN:
+			if (event == CV_EVENT_LBUTTONDOWN) {
+				for (int i = 0; i < wektorKsztaltow.size(); i++) {
+					for (int j = 0; j < wektorKsztaltow[i].size(); j++) {
+						if ((abs(wektorKsztaltow[i][j].x - x) < 8) && (abs(wektorKsztaltow[i][j].y - y) < 8)) {
+							iwsk = i;
+							jwsk = j;						
+							moveStatus = true;
+						}
+					}
+				}
+			}
+			break;
+		case CV_EVENT_LBUTTONUP:
+			moveStatus = false;
+			break;
+		case CV_EVENT_RBUTTONDOWN:
+			DeleteAngle(x, y);
+			break;
+		default:
+			img.copyTo(copy);
+			for (int i = 0; i < wektorKsztaltow.size(); i++) {
+				for (int j = 0; j < wektorKsztaltow[i].size(); j++) {
+					if ((abs(wektorKsztaltow[i][j].x - x) < 8) && (abs(wektorKsztaltow[i][j].y - y) < 8)) {	
+						circle(copy, cv::Point(x, y), 10.0, cv::Scalar(255, 0, 0), 0, 8);
+						iwsk = i;
+						jwsk = j;
+						imshow("splash", copy);
+					}
+				}
+			}
+			imshow("splash", copy);
+		}
 	}
 }
 
-static int calculateCountAngle() {
-	int i = 0;
-	do {
-		i++;
-	} while (tab[0][0] != tab[i][0] && tab[0][1] != tab[i][1]);
-	return i;
-}
 static int calculatePoint(int x1, int y1, int x2, int y2, int x) {
 	float a = (float)(y1 - y2) / (float)(x1 - x2);
 	float b = (float)y1 - (float)a*x1;
 	return (a * x + b);
 }
 
-static void DivideSectionCalculate() {
+
+static void DivideSectionCalculate(int pos) {
 	int points = 20, j = 20;
-	int countAngle = calculateCountAngle();
+	int vectorSize = wektorKsztaltow[pos].size() ;///-1 !!!!!!!!!!!
+	//std::cout << "   " << vectorSize;
 	POINT tabPointUp[50], tabPointDown[50];
 	float point = 0;
 	float x = 0, y1 = 0, sum = 0, y2 = 0, high = 0;
-	int left = tab[0][0];
-	int right = tab[0][0];
-	for (int i = 1; i < countAngle; i++) {
-		if (left > tab[i][0]) {
-			left = tab[i][0];
-		}
-		else if (right < tab[i][0])
-		{
-			right = tab[i][0];
-		}
-	}
-
-	sum = (right - left) / points;
-	x = left + sum;
-	//ktory jest najbardziej w lewo
+	
 	int up = 0, down = 0;
-	while (left != tab[up][0]) {
-		up++;
-		down++;
-	}
-	do {
-		if (down == 0) {
-			y1 = calculatePoint(tab[up][0], tab[up][1], tab[up + 1][0], tab[up + 1][1], x);
-			y2 = calculatePoint(tab[down][0], tab[down][1], tab[countAngle - 1][0], tab[countAngle - 1][1], x);
+	int left = wektorKsztaltow[pos][0].x;
+	int right = wektorKsztaltow[pos][0].x;
+	for (int i = 1; i < vectorSize; i++) {
+		if (left > wektorKsztaltow[pos][i].x) {
+			left = wektorKsztaltow[pos][i].x;
+			up = i;
 		}
-		else if (up == 3) {
-			y1 = calculatePoint(tab[up][0], tab[up][1], tab[0][0], tab[0][1], x);
-			y2 = calculatePoint(tab[down][0], tab[down][1], tab[down - 1][0], tab[down - 1][1], x);
+		else if (right<wektorKsztaltow[pos][i].x) {
+			right = wektorKsztaltow[pos][i].x;
+		}
+	}
+	down = up;
+
+	sum = (float)(right - left) / points;
+	
+	x = left + sum;
+	std::cout << "   " << sum << "   " << left << "   " << x;
+	//ktory jest najbardziej w lewo
+	
+	do {
+
+		for(int i = 0; i < vectorSize; i++){
+			if (down == 0) {
+				if (x > wektorKsztaltow[pos][vectorSize - 1].x) {
+					down--;
+					if (down == -1) {
+						down = vectorSize - 1;
+					}
+				}
+			}
+			else if (x > wektorKsztaltow[pos][down - 1].x) {
+				down--;
+				if (down == -1) {
+					down = vectorSize - 1;
+				}
+			}
+
+			if (x > wektorKsztaltow[pos][up + 1].x) {
+				up++;
+				if (up == vectorSize-1) {
+					up = 0;
+				}
+			}
+		}
+		if (down == 0) {
+			//y1 = calculatePoint(tab[up][0], tab[up][1], tab[up + 1][0], tab[up + 1][1], x);
+			//y2 = calculatePoint(tab[down][0], tab[down][1], tab[countAngle - 1][0], tab[countAngle - 1][1], x);
+			y1 = calculatePoint(wektorKsztaltow[pos][up].x, wektorKsztaltow[pos][up].y, wektorKsztaltow[pos][up + 1].x, wektorKsztaltow[pos][up+1].y, x);
+			y2 = calculatePoint(wektorKsztaltow[pos][down].x, wektorKsztaltow[pos][down].y, wektorKsztaltow[pos][vectorSize - 1].x, wektorKsztaltow[pos][vectorSize - 1].y, x);
+		}
+		else if (up == vectorSize-1) {//vektorsize -1
+						   //y1 = calculatePoint(tab[up][0], tab[up][1], tab[0][0], tab[0][1], x);
+						   //y2 = calculatePoint(tab[down][0], tab[down][1], tab[down - 1][0], tab[down - 1][1], x);
+			y1 = calculatePoint(wektorKsztaltow[pos][up].x, wektorKsztaltow[pos][up].y, wektorKsztaltow[pos][0].x, wektorKsztaltow[pos][0].y, x);
+			y2 = calculatePoint(wektorKsztaltow[pos][down].x, wektorKsztaltow[pos][down].y, wektorKsztaltow[pos][down - 1].x, wektorKsztaltow[pos][down - 1].y, x);
 		}
 		else {
-			y1 = calculatePoint(tab[up][0], tab[up][1], tab[up + 1][0], tab[up + 1][1], x);
-			y2 = calculatePoint(tab[down][0], tab[down][1], tab[down - 1][0], tab[down - 1][1], x);
+			//y1 = calculatePoint(tab[up][0], tab[up][1], tab[up + 1][0], tab[up + 1][1], x);
+			//y2 = calculatePoint(tab[down][0], tab[down][1], tab[down - 1][0], tab[down - 1][1], x);
+			y1 = calculatePoint(wektorKsztaltow[pos][up].x, wektorKsztaltow[pos][up].y, wektorKsztaltow[pos][up + 1].x, wektorKsztaltow[pos][up+1].y, x);
+			y2 = calculatePoint(wektorKsztaltow[pos][down].x, wektorKsztaltow[pos][down].y, wektorKsztaltow[pos][down - 1].x, wektorKsztaltow[pos][down - 1].y, x);
 		}
 
 		high = y1 - y2;
@@ -145,75 +257,44 @@ static void DivideSectionCalculate() {
 
 
 		x = x + sum;
-		if (down == 0) {
-			if (x > tab[countAngle - 1][0]) {
-				down--;
-				if (down == -1) {
-					down = countAngle - 1;
-				}
-			}
-		}
-		else if (x > tab[down - 1][0]) {
-			down--;
-			if (down == -1) {
-				down = countAngle - 1;
-			}
-		}
 
-		if (x > tab[up + 1][0]) {
-			up++;
-			if (up == countAngle) {
-				up = 0;
-			}
-		}
+		
 		points--;
-	} while (points > 0);
+	} while (points > 1);
 
 
-	for (j; j != 1; j--) {
+	for (j; j != 2; j--) {
+
 		cv::line(img, cv::Point(tabPointUp[j].x, tabPointUp[j].y), cv::Point(tabPointUp[j - 1].x, tabPointUp[j - 1].y), cv::Scalar(0, 255, 0), 1, 8);
 		cv::line(img, cv::Point(tabPointDown[j].x, tabPointDown[j].y), cv::Point(tabPointDown[j - 1].x, tabPointDown[j - 1].y), cv::Scalar(0, 255, 255), 1, 8);
 	}
 	imshow("splash", img);
 }
 
-static int madeTab(int i) {
-	std::cout << i;
-	int j = i;
-	int k = 0;
-	do {
-		tab[k][0] = tabmemory[i][0];
-		tab[k][1] = tabmemory[i][1];
-		//std::cout << "x: " << tab[k][0] << "  y: " << tab[k][1] ;
-		//std::cout << "     x: " << tabmemory[i][0] << "  y: " << tabmemory[i][1] << std::endl;
-		i++;
-		k++;
-	} while (tabmemory[j][0] != tabmemory[i][0] && tabmemory[j][1] != tabmemory[i][1]);
-	tab[k][0] = tabmemory[i][0];
-	tab[k][1] = tabmemory[i][1];
-	//for (int i = 0; i < 7; i++) {
-	//	std::cout << "x: " << tab[i][0] << "  y: " << tab[i][1] << std::endl;
-	//}
-	return i;
-}
+
+
 
 static void DivideSection() {
 	//for (int i = 0; i < 30; i++) {
 	//	std::cout << "x: " << tabmemory[i][0] << "  y: " << tabmemory[i][1] << std::endl;
 	//}
 
+	/*
 	int i = 0;
 	do {
-		i = madeTab(i);
-		DivideSectionCalculate();
-		//std::cout << " here";
-		i++;
+	i = madeTab(i);
+	DivideSectionCalculate();
+	//std::cout << " here";
+	i++;
 	} while (tabmemory[i][0] != 0 && tabmemory[i + 1][0] != 0);
+	*/
+	for (int i = 0; i < wektorKsztaltow.size(); i++) {
+		DivideSectionCalculate(i);
+	}
+
 
 }
 
-
-// ODT¥D LEC¥ STARE RZECZY
 
 
 namespace Projekt_PP {
@@ -604,14 +685,26 @@ namespace Projekt_PP {
 				std::string filePath = msclr::interop::marshal_as<std::string>(openFileDialog1->FileName);
 
 				//temp = cv::imread(filePath.c_str());
-			
+
+
 
 
 				//Test 2
 				cvImage = cvLoadImage(filePath.c_str(), cv::IMREAD_COLOR);	// cvImage to obraz wczytany do zmiennej typu IplImage
-				img = cv::cvarrToMat(cvImage);								// img to globalna zmienna reprezentuj¹ca obraz jako typ cv::Mat
+
+				img = cv::cvarrToMat(cvImage);								// img to globalna zmienna reprezentujÃ‚Â¹ca obraz jako typ cv::Mat
 				loaded = true;
 				//cvImage = cvCloneImage(&(IplImage)img);					// konwersja z Mat do IplImage
+				
+				//dodalem do nowego okna Damian
+				img.copyTo(orginalImg);
+				cv::namedWindow("splash", CV_WINDOW_AUTOSIZE);
+				cv::imshow("splash", img);
+
+				img = cv::cvarrToMat(cvImage);								// img to globalna zmienna reprezentujÂ¹ca obraz jako typ cv::Mat
+				loaded = true;
+				//cvImage = cvCloneImage(&(IplImage)img);					// konwersja z Mat do IplImage
+
 			}
 			catch (cv::Exception &ex) {
 				loaded = false;
@@ -622,8 +715,10 @@ namespace Projekt_PP {
 				return;
 			}
 			else {
-			/*	if (cvImage->widthStep % 4) {
-					cvImage->widthStep += abs(cvImage->widthStep % 4 - 4);
+
+				/*	if (cvImage->widthStep % 4) {
+				cvImage->widthStep += abs(cvImage->widthStep % 4 - 4);
+
 				}*/
 				image = gcnew Bitmap(img.cols, img.rows, img.step, Imaging::PixelFormat::Format24bppRgb, (IntPtr)img.data);
 				//image = gcnew Bitmap(cvImage->width, cvImage->height, cvImage->widthStep, Imaging::PixelFormat::Format24bppRgb, (IntPtr)cvImage->imageData);
@@ -656,29 +751,33 @@ namespace Projekt_PP {
 				cvSaveImage(filePath.c_str(), cvImage);
 			}
 			else {
-				MessageBox::Show("Nie wczyta³eœ obrazu!");
+				MessageBox::Show("Nie wczytaÃ‚Â³eÃ‚Âœ obrazu!");
 			}
 
 		}
 	}
 
 	private: System::Void polyToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
-		
+
+		isPoli = true;
 		/*POINT cursorPosition;
 		GetCursorPos(&cursorPosition);
 		std::cout << cursorPosition.x << " " << cursorPosition.y << std::endl;
-		*/
+
 		
 		img = cv::imread("splash.png", CV_LOAD_IMAGE_COLOR);
 		if (img.empty()) {
 			std::cout << "Cannot Open the immage" << std::endl;
 		}
+
+		
 		cv::namedWindow("splash", CV_WINDOW_AUTOSIZE);
 		cv::imshow("splash", img);
-		cv::setMouseCallback("splash", onMouse, 0);
-
-		cv::waitKey(0);
+		*/
 		
+		cv::setMouseCallback("splash", onMouse, 0);
+		cv::waitKey(0);
+
 	}
 
 			 //About
@@ -713,10 +812,12 @@ namespace Projekt_PP {
 		array<String^>^ paths = safe_cast<array<String^>^>(e->Data->GetData(DataFormats::FileDrop));
 		for each (String^ path in paths) {
 			std::string fileName = msclr::interop::marshal_as<std::string>(System::IO::Path::GetFileNameWithoutExtension(path)->ToLower());
-			std::string _path= msclr::interop::marshal_as<std::string>(path->ToLower());
+			std::string _path = msclr::interop::marshal_as<std::string>(path->ToLower());
 			try {
 				cvImage = cvLoadImage(_path.c_str(), cv::IMREAD_COLOR);
-				img = cv::cvarrToMat(cvImage);								// img to globalna zmienna reprezentuj¹ca obraz jako typ cv::Mat
+
+				img = cv::cvarrToMat(cvImage);								// img to globalna zmienna reprezentujÃ‚Â¹ca obraz jako typ cv::Mat
+
 			}
 			catch (cv::Exception e) {
 				MessageBox::Show("cvLoadImage error !");
@@ -731,10 +832,9 @@ namespace Projekt_PP {
 		}
 	}
 
-			 
-	
-private: System::Void divideSectionToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
-	DivideSection();
-}
-};
+
+	private: System::Void divideSectionToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
+		DivideSection();
+	}
+	};
 }
