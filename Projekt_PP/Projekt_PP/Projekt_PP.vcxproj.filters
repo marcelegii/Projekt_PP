@@ -41,6 +41,9 @@
     <ClInclude Include="matConvert.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="zoomOverview.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="MainForm.resx">
