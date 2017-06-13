@@ -1,4 +1,6 @@
-ï»¿#pragma once
+//linia 647 - zmiana sciezki - docelowo do zmiennej originalImage wczytac zdjecie w rozmiarze oryginalnym i wywolac initMainWindow();
+
+#pragma once
 #include"optionsForm.h";
 #include"SettingsAnnotationForm.h";
 #include <msclr\marshal_cppstd.h>
@@ -11,9 +13,9 @@
 //#include "MouseEvent.h"
 #include <Windows.h>
 #include <iostream>
-
 #include<string>
 #include <vector>
+#include "ZoomOverview.h"//KKK
 
 struct wsp {
 	int x;
@@ -27,7 +29,6 @@ int count = 0, iwsk, jwsk;
 bool isPoli = false, moveStatus = false;
 cv::Mat orginalImg;
 cv::Mat img;
-
 
 static void DrawFigure(int x, int y) {
 
@@ -103,7 +104,7 @@ static void MovePoint(int x, int y) {
 }
 static void onMouse(int event, int x, int y, int, void*) {
 	cv::Mat copy;
-	
+	std::cout << "MOUSE 2";
 
 	if (isPoli) {
 		switch (event)
@@ -270,8 +271,6 @@ static void DivideSectionCalculate(int pos) {
 	}
 	imshow("splash", img);
 }
-
-
 
 
 static void DivideSection() {
@@ -505,18 +504,21 @@ namespace Projekt_PP {
 			this->zoomInToolStripMenuItem->Name = L"zoomInToolStripMenuItem";
 			this->zoomInToolStripMenuItem->Size = System::Drawing::Size(127, 22);
 			this->zoomInToolStripMenuItem->Text = L"Zoom in";
+			this->zoomInToolStripMenuItem->Click += gcnew System::EventHandler(this, &MainForm::zoomInToolStripMenuItem_Click);//KKK
 			// 
 			// zoomOutToolStripMenuItem
 			// 
 			this->zoomOutToolStripMenuItem->Name = L"zoomOutToolStripMenuItem";
 			this->zoomOutToolStripMenuItem->Size = System::Drawing::Size(127, 22);
 			this->zoomOutToolStripMenuItem->Text = L"Zoom out";
+			this->zoomOutToolStripMenuItem->Click += gcnew System::EventHandler(this, &MainForm::zoomOutToolStripMenuItem_Click);//KKK
 			// 
 			// overviewToolStripMenuItem
 			// 
 			this->overviewToolStripMenuItem->Name = L"overviewToolStripMenuItem";
 			this->overviewToolStripMenuItem->Size = System::Drawing::Size(127, 22);
 			this->overviewToolStripMenuItem->Text = L"Overview";
+			this->overviewToolStripMenuItem->Click += gcnew System::EventHandler(this, &MainForm::overviewToolStripMenuItem_Click);//KKK
 			// 
 			// annotationToolStripMenuItem
 			// 
@@ -595,6 +597,7 @@ namespace Projekt_PP {
 			this->negativeToolStripMenuItem->Name = L"negativeToolStripMenuItem";
 			this->negativeToolStripMenuItem->Size = System::Drawing::Size(184, 22);
 			this->negativeToolStripMenuItem->Text = L"Negative";
+			this->negativeToolStripMenuItem->Click += gcnew System::EventHandler(this, &MainForm::negativeToolStripMenuItem_Click);//KKK
 			// 
 			// optionWindowsToolStripMenuItem
 			// 
@@ -640,6 +643,10 @@ namespace Projekt_PP {
 			this->ResumeLayout(false);
 			this->PerformLayout();
 
+
+			originalImage = cv::imread("C:\\Users\\Klaudia\\Pictures\\mozg.jpg");//KKK
+			initMainWindow();//KKK
+
 		}
 #pragma endregion
 	private: System::Void MainForm_Load(System::Object^  sender, System::EventArgs^  e) {
@@ -647,6 +654,14 @@ namespace Projekt_PP {
 
 	private: System::Void MainForm_KeyDown(System::Object^  sender, System::Windows::Forms::KeyEventArgs^  e) {
 
+		//KKK
+		if (e->KeyCode.ToString() == "A") { updateMainWindowCenter(originalImgCurrentXCenter - moveAWSDvalue, originalImgCurrentYCenter); }
+		else if (e->KeyCode.ToString() == "W") { updateMainWindowCenter(originalImgCurrentXCenter, originalImgCurrentYCenter - moveAWSDvalue); }
+		else if (e->KeyCode.ToString() == "S") { updateMainWindowCenter(originalImgCurrentXCenter, originalImgCurrentYCenter + moveAWSDvalue); }
+		else if (e->KeyCode.ToString() == "D") { updateMainWindowCenter(originalImgCurrentXCenter + moveAWSDvalue, originalImgCurrentYCenter); }
+		else if (e->KeyCode == Keys::Multiply) { zoomIn(); }
+		else if (e->KeyCode == Keys::Subtract) { zoomOut(); };	
+		
 		if (e->Control)
 		{
 			//
@@ -660,14 +675,10 @@ namespace Projekt_PP {
 			else if (e->KeyCode.ToString() == "M") MessageBox::Show("Option window test");
 			else if ((e->KeyCode == Keys::NumPad9 || e->KeyCode == Keys::D9) && this->zoomToolStripMenuItem->Enabled == true) MessageBox::Show("Zoom out test");
 			else if ((e->KeyCode == Keys::NumPad0 || e->KeyCode == Keys::D0) && this->zoomToolStripMenuItem->Enabled == true) MessageBox::Show("Zoom in test");
-
-
-
-
-
 		}
 	}
-			 //File
+
+	//File
 	private: System::Void openToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
 
 		OpenFileDialog ^ openFileDialog1 = gcnew OpenFileDialog();
@@ -836,5 +847,32 @@ namespace Projekt_PP {
 	private: System::Void divideSectionToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
 		DivideSection();
 	}
+
+
+
+	//KKK
+	private: System::Void zoomInToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
+		zoomIn();
+	}
+
+	private: System::Void zoomOutToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
+		zoomOut();
+	}
+
+	private: System::Void overviewToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
+		if (overviewActive) {
+			cv::destroyWindow("OverviewWindow");
+		}
+		else {
+			initOverviewWindow();
+		}
+		overviewActive = !overviewActive;
+	}
+
+	private: System::Void negativeToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
+		makeNegative();
+	}
+
+
 	};
 }
